@@ -27,7 +27,6 @@ h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 8px 0; 
 .editor {
   position: absolute; right: 10px; width: 55%; height: 46px;
   background: transparent; border: none; outline: none;
-  border-bottom: 2px solid #ff3b30;
   color: #ff3b30; caret-color: #ff3b30;
   font-size: 26px; font-weight: 700; text-align: right;
   font-variant-numeric: tabular-nums; font-family: inherit;

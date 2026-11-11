@@ -185,10 +185,6 @@ function draw() {
         }
       }
     }
-    if (editingCode === code) {
-      ctx.fillStyle = "rgba(255,59,48,0.12)";
-      ctx.fillRect(0, y, W, ROW_H);
-    }
     drawRow(code, y, shift);
     if (i < watchlist.length - 1) {
       ctx.strokeStyle = "#38383a"; ctx.lineWidth = 0.5;
