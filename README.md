@@ -10,9 +10,18 @@ CLI. 160+ world currencies, in the browser or from the command line.
   amount in **any** box and every other box updates instantly at the live
   rate — the box you are typing in is never overwritten, so input never
   jitters. Clearing a box clears the rest.
-- **Editable currency list**: add currencies from the dropdown, remove them
-  with ✕, or switch a row's currency in place. Your list is remembered
+- **Circular flag icons**: each row shows the currency's round flag
+  (circle-flags set); non-country currencies (gold XAU, silver XAG, BTC,
+  ETH…) get a circular symbol badge instead. No dropdowns in the rows.
+- **Editable currency list**: add currencies from a searchable flag picker
+  (tap ＋ Add currency), remove them with ✕. Your list is remembered
   (localStorage) for the next visit.
+- **12 interface languages** (English by default): English, 简体中文,
+  繁體中文, 日本語, 한국어, Español, Français, Deutsch, Português,
+  Italiano, Русский, العربية — currency names are localized automatically
+  via `Intl.DisplayNames`.
+- **Apple-style dark UI**: true-black background, iOS grouped card,
+  SF system font, iOS blue accent.
 - 160+ currencies supported (USD, CNY, EUR, JPY, GBP, …), all converted
   from a single rate snapshot so the whole board is always consistent
 - Shows each row's rate and when the provider last updated the rates
