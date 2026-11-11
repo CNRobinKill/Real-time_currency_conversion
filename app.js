@@ -53,7 +53,13 @@ const STR = {
 };
 let lang = localStorage.getItem(STORE_LANG) || "en";
 const t = (key) => (STR[key] && (STR[key][lang] || STR[key].en)) || key;
-const NAME_OVERRIDE = { CNH: { en: "Chinese Yuan (Offshore)", "zh-CN": "离岸人民币", "zh-TW": "離岸人民幣", ja: "人民元（オフショア）" } };
+const NAME_OVERRIDE = {
+  CNH: { en: "Chinese Yuan (Offshore)", "zh-CN": "离岸人民币", "zh-TW": "離岸人民幣", ja: "人民元（オフショア）" },
+  XAU: { en: "Gold", "zh-CN": "黄金", "zh-TW": "黃金", ja: "金" },
+  XAG: { en: "Silver", "zh-CN": "白银", "zh-TW": "白銀", ja: "銀" },
+  BTC: { en: "Bitcoin", "zh-CN": "比特币", "zh-TW": "比特幣", ja: "ビットコイン" },
+  ETH: { en: "Ethereum", "zh-CN": "以太坊", "zh-TW": "以太坊", ja: "イーサリアム" },
+};
 function currencyName(code) {
   let viaIntl = code;
   try { viaIntl = new Intl.DisplayNames([lang], { type: "currency" }).of(code) || code; } catch (e) {}
@@ -111,6 +117,14 @@ function toInputValue(x) {
   return String(parseFloat(x.toFixed(digits)));
 }
 const convert = (v, from, to) => v / rates[from] * rates[to];
+// Rate hint under each value: keep the provider's own precision for
+// fiat, but trim long float / scientific-notation rates (the merged
+// metals & crypto extras) to a readable form.
+function fmtRate(r) {
+  if (r === undefined || r === null) return "";
+  const s = String(r);
+  return (s.length > 10 || s.includes("e") || s.includes("E")) ? toInputValue(r) : s;
+}
 
 function computeValues() {
   const v = parseFloat(anchor.raw);
@@ -157,7 +171,7 @@ function drawRow(code, y, shiftX) {
     ctx.fillStyle = "#fff"; ctx.font = "500 20px -apple-system, sans-serif";
     ctx.fillText(values[code] || "0", W - 16, cy - 2);
     ctx.fillStyle = "#636366"; ctx.font = "11px -apple-system, sans-serif";
-    const hint = code === REF ? t("ref") : `1 ${REF} = ${rates[code]}`;
+    const hint = code === REF ? t("ref") : `1 ${REF} = ${fmtRate(rates[code])}`;
     ctx.fillText(hint, W - 16, cy + 15);
   }
   ctx.restore();
@@ -242,8 +256,14 @@ function closeEditor() {
   if (editingCode === null) return;
   editingCode = null;
   editor.classList.add("hidden");
+  if (document.activeElement === editor) editor.blur();
   draw();
 }
+// Tapping anywhere outside the editor (and outside the canvas, whose own
+// gesture handler deals with taps) exits editing.
+document.addEventListener("pointerdown", (e) => {
+  if (editingCode !== null && e.target !== editor && e.target !== canvas) closeEditor();
+});
 editor.addEventListener("input", () => {
   if (editingCode === null) return;
   anchor = { code: editingCode, raw: editor.value };
@@ -274,7 +294,7 @@ canvas.addEventListener("pointerdown", (e) => {
   // Tapping the revealed Delete area deletes.
   if (swipeOpen && code === swipeCode && x > boardW() - DEL_W) { deleteCurrency(code); return; }
   canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
-  g = { code, startX: x, startY: y, dx: 0, dy: 0, mode: null, idx };
+  g = { code, startX: x, startY: y, dx: 0, dy: 0, mode: null, idx, wasEditing: editingCode };
   if (swipeOpen && code === swipeCode) g.base = -DEL_W; else g.base = 0;
   g.longTimer = setTimeout(() => {
     if (!g || g.mode) return;
@@ -317,8 +337,9 @@ function endGesture(e) {
     else closeSwipe();
     draw();
   } else {
-    // plain tap: only a tap on the value itself opens the editor
-    if (swipeOpen) { closeSwipe(); draw(); }
+    // plain tap
+    if (g.wasEditing) closeEditor();          // while editing, any tap elsewhere just exits editing
+    else if (swipeOpen) { closeSwipe(); draw(); }
     else if (editingCode !== g.code && g.startX >= valueLeftEdge(g.code) - 14) openEditor(g.code);
   }
   g = null;
@@ -388,15 +409,47 @@ function applyLanguage() {
 }
 
 // ---------- data ----------
+// Non-fiat extras (gold, silver, bitcoin, ethereum) are not in the
+// ExchangeRate-API feed, so their USD spot prices come from free
+// no-key endpoints and are merged in as units-per-USD rates. They load
+// in parallel and never block the fiat board.
+const EXTRA_APIS = [
+  { url: "https://api.gold-api.com/price/XAU", pick: (d) => ({ XAU: d.price }) },
+  { url: "https://api.gold-api.com/price/XAG", pick: (d) => ({ XAG: d.price }) },
+  { url: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd",
+    pick: (d) => ({ BTC: d.bitcoin && d.bitcoin.usd, ETH: d.ethereum && d.ethereum.usd }) },
+];
+let extraRates = {};   // code -> units per 1 USD (1 / spot price)
+async function loadExtras() {
+  const results = await Promise.allSettled(EXTRA_APIS.map(async (a) => {
+    const res = await fetch(a.url, { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return a.pick(await res.json());
+  }));
+  for (const r of results) {
+    if (r.status !== "fulfilled") continue;
+    for (const [code, usd] of Object.entries(r.value)) {
+      if (usd > 0) extraRates[code] = 1 / usd;
+    }
+  }
+}
+
 async function loadRates() {
   const res = await fetch(API);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
   if (data.result !== "success") throw new Error("Provider error");
-  rates = data.rates; updatedUtc = data.time_last_update_utc;
+  rates = { ...data.rates, ...extraRates }; updatedUtc = data.time_last_update_utc;
   if (!rates[anchor.code]) anchor = { code: REF, raw: anchor.raw };
   computeValues(); fitCanvas();
   $("updated").textContent = t("updated").replace("{t}", updatedUtc);
+  // Refresh the extras alongside; merge and redraw when they land.
+  loadExtras().then(() => {
+    if (!Object.keys(extraRates).length) return;
+    rates = { ...rates, ...extraRates };
+    computeValues(); draw();
+    if (!$("picker").classList.contains("hidden")) renderPicker($("pickerSearch").value);
+  }).catch(() => {});
 }
 
 async function init() {
@@ -433,5 +486,5 @@ $("refreshBtn").addEventListener("click", async () => {
 });
 
 // Debug/test handle (read-only view of the board state).
-window.__rtcc = { get watchlist() { return [...watchlist]; }, get values() { return { ...values }; }, get anchor() { return { ...anchor }; } };
+window.__rtcc = { get watchlist() { return [...watchlist]; }, get values() { return { ...values }; }, get anchor() { return { ...anchor }; }, get rates() { return { ...rates }; } };
 init();
