@@ -16,11 +16,11 @@
 //    Tapping the flag/name area does nothing, so edits aren't triggered
 //    by accident.
 //  - Swipe a row left: reveals the drawn Delete area; tap it to remove.
-//  - Long-press (450ms) a row: pick it up and drag to reorder. Only
-//    once the long-press fires is the page scroll locked — a vertical
-//    touch-drag on the board otherwise scrolls the page itself (the
-//    canvas forwards it to window.scrollBy), so the board never traps
-//    the page.
+//  - Long-press (450ms) a row: pick it up and drag to reorder. The
+//    canvas uses touch-action: pan-y, so ordinary vertical touch-drags
+//    are scrolled NATIVELY by the browser (compositor-smooth). Only
+//    once the long-press fires does the board lock scrolling, by
+//    canceling touchmove for the rest of that gesture.
 //  - At most 7 currencies are shown at once.
 // Rates come from the ExchangeRate-API open endpoint (free, no key),
 // fetched once against USD; flags are self-hosted under flags/.
@@ -307,11 +307,12 @@ function deleteCurrency(code) {
 }
 
 let g = null;  // active gesture
-let momentum = 0;  // rAF id of an in-progress page-scroll fling
-function cancelMomentum() { if (momentum) cancelAnimationFrame(momentum); momentum = 0; }
 canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+// Once a long-press turns the gesture into a row drag, cancel touchmove
+// (non-passive, so this actually blocks) to keep the page from scrolling
+// for the rest of the gesture. Before that, the page scrolls natively.
+canvas.addEventListener("touchmove", (e) => { if (g && g.mode === "drag") e.preventDefault(); }, { passive: false });
 canvas.addEventListener("pointerdown", (e) => {
-  cancelMomentum();
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left, y = e.clientY - rect.top;
   const idx = Math.floor(y / ROW_H);
@@ -320,8 +321,7 @@ canvas.addEventListener("pointerdown", (e) => {
   // Tapping the revealed Delete area deletes.
   if (swipeOpen && code === swipeCode && x > boardW() - DEL_W) { deleteCurrency(code); return; }
   try { canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId); } catch (err) {}
-  g = { code, startX: x, startY: y, dx: 0, dy: 0, mode: null, idx, wasEditing: editingCode,
-        pointerType: e.pointerType, lastY: y, lastT: performance.now(), vel: 0 };
+  g = { code, startX: x, startY: y, dx: 0, dy: 0, mode: null, idx, wasEditing: editingCode };
   if (swipeOpen && code === swipeCode) g.base = -DEL_W; else g.base = 0;
   g.longTimer = setTimeout(() => {
     if (!g || g.mode) return;
@@ -345,19 +345,6 @@ canvas.addEventListener("pointermove", (e) => {
       watchlist.splice(cur, 1); watchlist.splice(target, 0, dragCode);
     }
     draw();
-  } else if (g.mode === "pagescroll") {
-    // The board forwards the touch-drag to the page: 1:1 tracking.
-    const step = y - g.lastY;
-    window.scrollBy(0, -step);
-    const now = performance.now(), dt = now - g.lastT;
-    if (dt > 0) g.vel = 0.8 * g.vel + 0.2 * (step / dt);   // finger velocity, px/ms
-    g.lastY = y; g.lastT = now;
-  } else if (g.pointerType === "touch" && Math.abs(g.dy) > 10 && Math.abs(g.dy) > Math.abs(g.dx)) {
-    // A mainly-vertical touch-drag scrolls the page (until a long-press
-    // picks the row up instead). Mouse keeps the old behaviour.
-    g.mode = "pagescroll"; clearTimeout(g.longTimer);
-    window.scrollBy(0, -g.dy);
-    g.lastY = y; g.lastT = performance.now(); g.vel = 0;
   } else if (g.mode === "swipe" || (Math.abs(g.dx) > 10 && Math.abs(g.dx) > Math.abs(g.dy))) {
     if (g.mode !== "swipe") { g.mode = "swipe"; clearTimeout(g.longTimer); if (editingCode) closeEditor(); }
     swipeCode = g.code;
@@ -372,30 +359,36 @@ function endGesture(e) {
   if (g.mode === "drag") {
     dragCode = null;
     saveWatchlist(); draw();
-  } else if (g.mode === "pagescroll") {
-    // Fling: keep scrolling with decaying velocity.
-    let v = g.vel * 16;   // px per frame
-    const stepFn = () => {
-      if (Math.abs(v) < 0.3) { momentum = 0; return; }
-      window.scrollBy(0, -v);
-      v *= 0.94;
-      momentum = requestAnimationFrame(stepFn);
-    };
-    if (Math.abs(v) > 0.3) momentum = requestAnimationFrame(stepFn);
   } else if (g.mode === "swipe") {
     if (swipeDx < -DEL_W / 2) { swipeOpen = true; swipeDx = -DEL_W; }
     else closeSwipe();
     draw();
-  } else {
-    // plain tap
+  } else if (Math.abs(g.dx) < 10 && Math.abs(g.dy) < 10) {
+    // plain tap (a moved gesture that matched no mode is not a tap)
     if (g.wasEditing) closeEditor();          // while editing, any tap elsewhere just exits editing
     else if (swipeOpen) { closeSwipe(); draw(); }
     else if (editingCode !== g.code && g.startX >= valueLeftEdge(g.code) - 14) openEditor(g.code);
   }
   g = null;
 }
+// The browser takes the gesture over (native page scroll): settle any
+// in-progress mode, but never treat the interruption as a tap.
+function cancelGesture() {
+  if (!g) return;
+  clearTimeout(g.longTimer);
+  document.body.style.overflow = "";
+  if (g.mode === "drag") {
+    dragCode = null;
+    saveWatchlist(); draw();
+  } else if (g.mode === "swipe") {
+    if (swipeDx < -DEL_W / 2) { swipeOpen = true; swipeDx = -DEL_W; }
+    else closeSwipe();
+    draw();
+  }
+  g = null;
+}
 canvas.addEventListener("pointerup", endGesture);
-canvas.addEventListener("pointercancel", endGesture);
+canvas.addEventListener("pointercancel", cancelGesture);
 
 // ---------- picker ----------
 function renderPicker(filter = "") {

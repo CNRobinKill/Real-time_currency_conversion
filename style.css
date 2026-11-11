@@ -18,10 +18,12 @@ h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 8px 0; 
   padding: 8px 10px; font-size: 15px; flex: none;
 }
 
-/* Canvas board. touch-action:none is what locks page scrolling for any
-   gesture that starts on the board. */
+/* Canvas board. touch-action: pan-y lets the browser scroll the page
+   natively (smooth, compositor-driven) for vertical touch-drags that
+   start on the board; app.js cancels touchmove to lock scrolling only
+   after a long-press turns the gesture into a row drag. */
 .canvas-wrap { position: relative; border-radius: 20px; overflow: hidden; background: #1c1c1e; }
-#board { display: block; width: 100%; touch-action: none; }
+#board { display: block; width: 100%; touch-action: pan-y; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
 /* Editing state: red, larger and bolder than the resting value
    (canvas draws the resting value white, 20px, weight 500). */
 .editor {
