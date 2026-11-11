@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Real-time Currency Conversion</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="card">
+  <h1>💱 Real-time Currency Conversion</h1>
+  <p class="sub">Editable multi-currency board — all rates sync from one live fetch.</p>
+
+  <div class="row">
+    <label>Amount
+      <input id="amount" type="number" value="100" min="0" step="any">
+    </label>
+    <label>Base currency
+      <select id="base"></select>
+    </label>
+    <button id="refresh">↻ Refresh</button>
+  </div>
+
+  <table>
+    <thead><tr><th>Currency</th><th>Rate (1 base =)</th><th>Converted</th><th></th></tr></thead>
+    <tbody id="board"></tbody>
+  </table>
+
+  <div class="row">
+    <label>Add currency
+      <select id="addSelect"></select>
+    </label>
+    <button id="addBtn">+ Add</button>
+  </div>
+
+  <h2>Single conversion</h2>
+  <div class="row">
+    <label>From <select id="from"></select></label>
+    <button id="swap" title="Swap">⇄</button>
+    <label>To <select id="to"></select></label>
+  </div>
+  <p id="result" class="result"></p>
+
+  <p id="updated" class="updated"></p>
+  <p id="error" class="error"></p>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
