@@ -11,11 +11,14 @@ CLI. 160+ world currencies, in the browser or from the command line.
   rate — the box you are typing in is never overwritten, so input never
   jitters. Clearing a box clears the rest.
 - **Circular flag icons**: each row shows the currency's round flag
-  (circle-flags set); non-country currencies (gold XAU, silver XAG, BTC,
-  ETH…) get a circular symbol badge instead. No dropdowns in the rows.
+  (circle-flags set, **self-hosted in `flags/`** — no external CDN, so the
+  icons always load, including the EU flag for EUR); non-country currencies
+  (gold XAU, silver XAG, BTC, ETH…) get a circular symbol badge instead.
+  No dropdowns in the rows.
 - **Editable currency list**: add currencies from a searchable flag picker
-  (tap ＋ Add currency), remove them with ✕. Your list is remembered
-  (localStorage) for the next visit.
+  (tap ＋ Add currency). **Swipe a row left to delete it** (iOS style),
+  **long-press a row and drag to reorder**. Your list and its order are
+  remembered (localStorage) for the next visit.
 - **12 interface languages** (English by default): English, 简体中文,
   繁體中文, 日本語, 한국어, Español, Français, Deutsch, Português,
   Italiano, Русский, العربية — currency names are localized automatically
