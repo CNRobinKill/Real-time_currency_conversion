@@ -2,14 +2,18 @@ body { font-family: system-ui, sans-serif; background:#0f172a; color:#e2e8f0;
   display:flex; justify-content:center; padding:2rem; }
 .card { background:#1e293b; padding:2rem; border-radius:16px; width:min(640px,100%); }
 .sub { color:#94a3b8; }
+.currency-row { display:flex; gap:.6rem; align-items:center; margin:.6rem 0; }
+.currency-row .code { width:6.5rem; flex:none; }
+.currency-row .amount { flex:1; font-size:1.1rem; }
+.currency-row .hint { color:#94a3b8; font-size:.8rem; width:11rem; flex:none; }
+.currency-row .remove { flex:none; width:auto; padding:.45rem .6rem; }
+@media (max-width:560px) { .currency-row .hint { display:none; } }
 label { display:block; margin:.8rem 0; font-size:.9rem; flex:1; }
 input, select, button { width:100%; padding:.6rem; margin-top:.3rem; border-radius:8px;
   border:1px solid #334155; background:#0f172a; color:#e2e8f0; font-size:1rem; }
-.row { display:flex; gap:.6rem; align-items:end; }
+.currency-row input, .currency-row select, .currency-row button { margin-top:0; }
+.row { display:flex; gap:.6rem; align-items:end; margin-top:1rem; }
 button { cursor:pointer; width:auto; white-space:nowrap; }
-table { width:100%; border-collapse:collapse; margin:1rem 0; }
-th, td { text-align:left; padding:.5rem; border-bottom:1px solid #334155; }
-td button { padding:.2rem .5rem; }
-.result { font-size:1.25rem; font-weight:700; margin-top:1rem; }
-.updated { color:#94a3b8; font-size:.85rem; }
+button:disabled { opacity:.4; cursor:default; }
+.updated { color:#94a3b8; font-size:.85rem; margin-top:1rem; }
 .error { color:#f87171; }

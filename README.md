@@ -6,12 +6,18 @@ CLI. 160+ world currencies, in the browser or from the command line.
 
 ## What it does
 
-- **Editable board**: add/remove currencies, change the base currency or the
-  amount, and every row re-converts in sync from the same rate snapshot
-- Convert any amount between 160+ currencies (USD, CNY, EUR, JPY, GBP, …)
-- Shows the live rate used and when the provider last updated it
-- Auto-refreshes every 60 seconds; manual refresh button too
-- Swap button, instant re-conversion on change
+- **Synced input board**: every currency row has its own input box. Type an
+  amount in **any** box and every other box updates instantly at the live
+  rate — the box you are typing in is never overwritten, so input never
+  jitters. Clearing a box clears the rest.
+- **Editable currency list**: add currencies from the dropdown, remove them
+  with ✕, or switch a row's currency in place. Your list is remembered
+  (localStorage) for the next visit.
+- 160+ currencies supported (USD, CNY, EUR, JPY, GBP, …), all converted
+  from a single rate snapshot so the whole board is always consistent
+- Shows each row's rate and when the provider last updated the rates
+- Rates auto-refresh every 60 seconds (the amount you typed stays put);
+  manual refresh button too
 - No API key, no build step, no dependencies
 
 ## Data source
