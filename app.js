@@ -1,21 +1,31 @@
-// Real-time currency conversion — synced multi-currency input board.
+// Real-time currency conversion — Canvas board edition.
 // Apple-style dark UI · multilingual (default English) · circular flag icons.
 //
-// - Rates for ALL currencies are fetched once against USD from the
-//   ExchangeRate-API open endpoint (free, no API key).
-// - Every row shows a circular flag (or a symbol badge for non-country
-//   currencies such as XAU/BTC) and its own input box. Typing in ANY box
-//   makes it the anchor; every other box is recomputed from it and the
-//   anchor box itself is never overwritten.
-// - Currencies are added from a flag picker (no dropdowns in the rows),
-//   removed with the ✕ on each row; the list persists in localStorage.
-// - The interface language can be switched at the top right; currency
-//   names come from Intl.DisplayNames in the chosen language.
+// The currency board is drawn on a <canvas>, which gives the gestures
+// full control and fixes the classic DOM problems:
+//  - the canvas has touch-action:none, so once a touch starts on the
+//    board the page can never scroll along with a drag;
+//  - there is no hidden DOM delete button behind a row — the red Delete
+//    area is *drawn* only while a swipe is in progress, and is never
+//    drawn during a long-press drag, so it cannot leak through.
+//
+// Interactions:
+//  - Tap a row: a real <input> overlays that row; typing re-anchors the
+//    whole board (all other rows recompute from that row's amount).
+//  - Swipe a row left: reveals the drawn Delete area; tap it to remove.
+//  - Long-press (450ms) a row: pick it up and drag to reorder.
+//  - At most 7 currencies are shown at once.
+// Rates come from the ExchangeRate-API open endpoint (free, no key),
+// fetched once against USD; flags are self-hosted under flags/.
 const API = "https://open.er-api.com/v6/latest/USD";
 const REF = "USD";
-const FLAG_CDN = "flags/";  // self-hosted in this repo (no external CDN)
-const STORE_LIST = "rtcc.watchlist.v3";
+const FLAG_DIR = "flags/";
+const MAX_ROWS = 7;
+const ROW_H = 68;
+const DEL_W = 84;
+const STORE_LIST = "rtcc.watchlist.v4";
 const STORE_LANG = "rtcc.lang.v1";
+const DEFAULT_LIST = ["USD", "CNH", "TRY", "HKD", "JPY", "GBP", "EUR"];
 
 // ---------- i18n ----------
 const LANGS = [
@@ -32,42 +42,38 @@ const STR = {
   picker:  { en: "Add currency", "zh-CN": "添加货币", "zh-TW": "添加貨幣", ja: "通貨を追加", ko: "통화 추가", es: "Añadir divisa", fr: "Ajouter une devise", de: "Währung hinzufügen", pt: "Adicionar moeda", it: "Aggiungi valuta", ru: "Добавить валюту", ar: "إضافة عملة" },
   search:  { en: "Search code or name", "zh-CN": "搜索代码或名称", "zh-TW": "搜尋代碼或名稱", ja: "コードまたは名前で検索", ko: "코드 또는 이름 검색", es: "Buscar código o nombre", fr: "Rechercher un code ou un nom", de: "Code oder Name suchen", pt: "Pesquisar código ou nome", it: "Cerca codice o nome", ru: "Поиск по коду или названию", ar: "ابحث بالرمز أو الاسم" },
   updated: { en: "Rates last updated: {t} · Source: ExchangeRate-API · Auto-refresh every 60s", "zh-CN": "汇率更新时间：{t} · 数据来源：ExchangeRate-API · 每 60 秒自动刷新", "zh-TW": "匯率更新時間：{t} · 資料來源：ExchangeRate-API · 每 60 秒自動重新整理", ja: "レート更新：{t} · 出典：ExchangeRate-API · 60秒ごとに自動更新", ko: "환율 업데이트: {t} · 출처: ExchangeRate-API · 60초마다 자동 새로고침", es: "Tasas actualizadas: {t} · Fuente: ExchangeRate-API · Actualización automática cada 60 s", fr: "Taux mis à jour : {t} · Source : ExchangeRate-API · Actualisation auto toutes les 60 s", de: "Kurse aktualisiert: {t} · Quelle: ExchangeRate-API · Auto-Aktualisierung alle 60 s", pt: "Taxas atualizadas: {t} · Fonte: ExchangeRate-API · Atualização automática a cada 60 s", it: "Tassi aggiornati: {t} · Fonte: ExchangeRate-API · Aggiornamento automatico ogni 60 s", ru: "Курсы обновлены: {t} · Источник: ExchangeRate-API · Автообновление каждые 60 с", ar: "آخر تحديث للأسعار: {t} · المصدر: ExchangeRate-API · تحديث تلقائي كل 60 ثانية" },
+  max:     { en: "Maximum 7 currencies — remove one first.", "zh-CN": "最多显示 7 个货币，请先删除一个。", "zh-TW": "最多顯示 7 個貨幣，請先刪除一個。", ja: "最大7通貨までです。先に1つ削除してください。", ko: "최대 7개 통화까지 표시됩니다. 먼저 하나를 삭제하세요.", es: "Máximo 7 divisas: elimina una primero.", fr: "7 devises maximum — supprimez-en une d'abord.", de: "Maximal 7 Währungen — zuerst eine entfernen.", pt: "Máximo de 7 moedas — remova uma primeiro.", it: "Massimo 7 valute: rimuovine prima una.", ru: "Максимум 7 валют — сначала удалите одну.", ar: "بحد أقصى 7 عملات — احذف واحدة أولًا." },
   del:     { en: "Delete", "zh-CN": "删除", "zh-TW": "刪除", ja: "削除", ko: "삭제", es: "Eliminar", fr: "Supprimer", de: "Löschen", pt: "Excluir", it: "Elimina", ru: "Удалить", ar: "حذف" },
-  hint:    { en: "Swipe left on a row to delete · Long-press a row and drag to reorder", "zh-CN": "左滑一行删除 · 长按一行拖动排序", "zh-TW": "左滑一行刪除 · 長按一行拖動排序", ja: "行を左スワイプで削除 · 長押ししてドラッグで並べ替え", ko: "행을 왼쪽으로 밀어 삭제 · 길게 눌러 드래그하면 순서 변경", es: "Desliza a la izquierda para eliminar · Mantén pulsado y arrastra para reordenar", fr: "Glisser vers la gauche pour supprimer · Appui long puis glisser pour réordonner", de: "Zum Löschen nach links wischen · Lange drücken und ziehen zum Sortieren", pt: "Deslize para a esquerda para excluir · Pressione e arraste para reordenar", it: "Scorri a sinistra per eliminare · Premi a lungo e trascina per riordinare", ru: "Свайп влево — удалить · Долгое нажатие и перетаскивание — изменить порядок", ar: "اسحب لليسار للحذف · اضغط مطولًا واسحب لإعادة الترتيب" },
+  hint:    { en: "Tap a row to edit · Swipe left to delete · Long-press & drag to reorder", "zh-CN": "点一行编辑 · 左滑删除 · 长按拖动排序", "zh-TW": "點一行編輯 · 左滑刪除 · 長按拖動排序", ja: "行を左スワイプで削除 · 長押ししてドラッグで並べ替え", ko: "행을 왼쪽으로 밀어 삭제 · 길게 눌러 드래그하면 순서 변경", es: "Desliza a la izquierda para eliminar · Mantén pulsado y arrastra para reordenar", fr: "Glisser vers la gauche pour supprimer · Appui long puis glisser pour réordonner", de: "Zum Löschen nach links wischen · Lange drücken und ziehen zum Sortieren", pt: "Deslize para a esquerda para excluir · Pressione e arraste para reordenar", it: "Scorri a sinistra per eliminare · Premi a lungo e trascina per riordinare", ru: "Свайп влево — удалить · Долгое нажатие и перетаскивание — изменить порядок", ar: "اسحب لليسار للحذف · اضغط مطولًا واسحب لإعادة الترتيب" },
   ref:     { en: "reference", "zh-CN": "基准", "zh-TW": "基準", ja: "基準", ko: "기준", es: "referencia", fr: "référence", de: "Referenz", pt: "referência", it: "riferimento", ru: "базовая", ar: "مرجع" },
   loadErr: { en: "Could not load rates: ", "zh-CN": "汇率加载失败：", "zh-TW": "匯率載入失敗：", ja: "レートを読み込めませんでした：", ko: "환율을 불러오지 못했습니다: ", es: "No se pudieron cargar las tasas: ", fr: "Impossible de charger les taux : ", de: "Kurse konnten nicht geladen werden: ", pt: "Não foi possível carregar as taxas: ", it: "Impossibile caricare i tassi: ", ru: "Не удалось загрузить курсы: ", ar: "تعذر تحميل الأسعار: " },
 };
 let lang = localStorage.getItem(STORE_LANG) || "en";
 const t = (key) => (STR[key] && (STR[key][lang] || STR[key].en)) || key;
-
+const NAME_OVERRIDE = { CNH: { en: "Chinese Yuan (Offshore)", "zh-CN": "离岸人民币", "zh-TW": "離岸人民幣", ja: "人民元（オフショア）" } };
 function currencyName(code) {
-  try { return new Intl.DisplayNames([lang], { type: "currency" }).of(code) || code; }
-  catch (e) { return code; }
+  let viaIntl = code;
+  try { viaIntl = new Intl.DisplayNames([lang], { type: "currency" }).of(code) || code; } catch (e) {}
+  if (viaIntl !== code) return viaIntl;
+  const o = NAME_OVERRIDE[code];
+  return (o && (o[lang] || o.en)) || code;
 }
 
 // ---------- flags ----------
-// Currency -> ISO country code for the circle-flags set. Currencies with no
-// country (metals, crypto, SDR…) get a circular symbol badge instead.
-const FLAG = { USD:"us", CNY:"cn", EUR:"eu", JPY:"jp", GBP:"gb", HKD:"hk", AUD:"au", CAD:"ca", CHF:"ch", NZD:"nz", SGD:"sg", KRW:"kr", INR:"in", TRY:"tr", RUB:"ru", BRL:"br", ZAR:"za", MXN:"mx", TWD:"tw", THB:"th", MYR:"my", IDR:"id", PHP:"ph", VND:"vn", AED:"ae", SAR:"sa", QAR:"qa", KWD:"kw", BHD:"bh", OMR:"om", JOD:"jo", ILS:"il", EGP:"eg", NGN:"ng", KES:"ke", GHS:"gh", MAD:"ma", DZD:"dz", TND:"tn", PLN:"pl", SEK:"se", NOK:"no", DKK:"dk", HUF:"hu", CZK:"cz", RON:"ro", BGN:"bg", HRK:"hr", ISK:"is", UAH:"ua", RSD:"rs", ARS:"ar", CLP:"cl", COP:"co", PEN:"pe", UYU:"uy", DOP:"do", GTQ:"gt", CRC:"cr", PAB:"pa", JMD:"jm", TTD:"tt", BMD:"bm", KYD:"ky", BBD:"bb", BSD:"bs", BZD:"bz", XCD:"ag", AWG:"aw", ANG:"cw", SRD:"sr", GYD:"gy", PKR:"pk", BDT:"bd", LKR:"lk", NPR:"np", MMK:"mm", KHR:"kh", LAK:"la", BND:"bn", MOP:"mo", MNT:"mn", KZT:"kz", UZS:"uz", TMT:"tm", AZN:"az", GEL:"ge", AMD:"am", MDL:"md", BYN:"by", LBP:"lb", IQD:"iq", IRR:"ir", AFN:"af", SDG:"sd", SSP:"ss", ETB:"et", AOA:"ao", MZN:"mz", ZMW:"zm", UGX:"ug", TZS:"tz", XOF:"sn", XAF:"cm", CDF:"cd", MGA:"mg", MUR:"mu", SCR:"sc", BWP:"bw", NAD:"na", SZL:"sz", LSL:"ls", MWK:"mw", GMD:"gm", GNF:"gn", SLL:"sl", LRD:"lr", UYU:"uy", BOB:"bo", PYG:"py", VES:"ve", CUP:"cu", NIO:"ni", HNL:"hn", SVC:"sv", FJD:"fj", PGK:"pg", SBD:"sb", TOP:"to", VUV:"vu", WST:"ws", SRD:"sr", MKD:"mk", ALL:"al", BAM:"ba", MKD:"mk", TJS:"tj", KGS:"kg", RSD:"rs", MGA:"mg", ERN:"er", DJF:"dj", SOS:"so", KMF:"km", CVE:"cv", STN:"st", MRU:"mr", SYP:"sy", YER:"ye", LYD:"ly", AWG:"aw", FKP:"fk", GIP:"gi", SHP:"sh", XPF:"pf", BTN:"bt", MVR:"mv", PAB:"pa", HTG:"ht" };
+const FLAG = { USD:"us", CNH:"cn", CNY:"cn", EUR:"eu", JPY:"jp", GBP:"gb", HKD:"hk", AUD:"au", CAD:"ca", CHF:"ch", NZD:"nz", SGD:"sg", KRW:"kr", INR:"in", TRY:"tr", RUB:"ru", BRL:"br", ZAR:"za", MXN:"mx", TWD:"tw", THB:"th", MYR:"my", IDR:"id", PHP:"ph", VND:"vn", AED:"ae", SAR:"sa", QAR:"qa", KWD:"kw", BHD:"bh", OMR:"om", JOD:"jo", ILS:"il", EGP:"eg", NGN:"ng", KES:"ke", GHS:"gh", MAD:"ma", DZD:"dz", TND:"tn", PLN:"pl", SEK:"se", NOK:"no", DKK:"dk", HUF:"hu", CZK:"cz", RON:"ro", BGN:"bg", HRK:"hr", ISK:"is", UAH:"ua", RSD:"rs", ARS:"ar", CLP:"cl", COP:"co", PEN:"pe", UYU:"uy", DOP:"do", GTQ:"gt", CRC:"cr", PAB:"pa", JMD:"jm", TTD:"tt", BMD:"bm", KYD:"ky", BBD:"bb", BSD:"bs", BZD:"bz", XCD:"ag", AWG:"aw", ANG:"cw", SRD:"sr", GYD:"gy", PKR:"pk", BDT:"bd", LKR:"lk", NPR:"np", MMK:"mm", KHR:"kh", LAK:"la", BND:"bn", MOP:"mo", MNT:"mn", KZT:"kz", UZS:"uz", TMT:"tm", AZN:"az", GEL:"ge", AMD:"am", MDL:"md", BYN:"by", LBP:"lb", IQD:"iq", IRR:"ir", AFN:"af", SDG:"sd", SSP:"ss", ETB:"et", AOA:"ao", MZN:"mz", ZMW:"zm", UGX:"ug", TZS:"tz", XOF:"sn", XAF:"cm", CDF:"cd", MGA:"mg", MUR:"mu", SCR:"sc", BWP:"bw", NAD:"na", SZL:"sz", LSL:"ls", MWK:"mw", GMD:"gm", GNF:"gn", SLL:"sl", LRD:"lr", UYU:"uy", BOB:"bo", PYG:"py", VES:"ve", CUP:"cu", NIO:"ni", HNL:"hn", SVC:"sv", FJD:"fj", PGK:"pg", SBD:"sb", TOP:"to", VUV:"vu", WST:"ws", SRD:"sr", MKD:"mk", ALL:"al", BAM:"ba", MKD:"mk", TJS:"tj", KGS:"kg", RSD:"rs", MGA:"mg", ERN:"er", DJF:"dj", SOS:"so", KMF:"km", CVE:"cv", STN:"st", MRU:"mr", SYP:"sy", YER:"ye", LYD:"ly", AWG:"aw", FKP:"fk", GIP:"gi", SHP:"sh", XPF:"pf", BTN:"bt", MVR:"mv", PAB:"pa", HTG:"ht" };
 const BADGE = { XAU: ["Au", "#c9a227"], XAG: ["Ag", "#9aa5b1"], XPT: ["Pt", "#7d8590"], XPD: ["Pd", "#7d8590"], BTC: ["₿", "#f7931a"], ETH: ["Ξ", "#627eea"], XEU: ["€", "#003399"] };
-
-function flagNode(code, cls = "flag") {
+const flagImgs = {};
+function flagImg(code) {
   const cc = FLAG[code];
-  if (cc) {
-    const img = document.createElement("img");
-    img.className = cls; img.alt = code; img.loading = "lazy"; img.draggable = false;
-    img.src = FLAG_CDN + cc + ".svg";
-    img.onerror = () => img.replaceWith(badgeNode(code, cls));
-    return img;
+  if (!cc) return null;
+  if (!flagImgs[code]) {
+    const img = new Image();
+    img.onload = () => draw();
+    img.src = FLAG_DIR + cc + ".svg";
+    flagImgs[code] = img;
   }
-  return badgeNode(code, cls);
-}
-function badgeNode(code, cls = "flag") {
-  const [sym, color] = BADGE[code] || [code.slice(0, 2), "#48484a"];
-  const d = document.createElement("div");
-  d.className = cls === "flag" ? "flag-badge" : "flag-badge";
-  d.style.background = color; d.textContent = sym; d.title = code;
-  return d;
+  const img = flagImgs[code];
+  return (img.complete && img.naturalWidth > 0) ? img : null;
 }
 
 // ---------- state ----------
@@ -75,11 +81,22 @@ let rates = {};
 let updatedUtc = "";
 let watchlist = loadWatchlist();
 let anchor = { code: REF, raw: "100" };
+let values = {};            // code -> display string
+let editingCode = null;
+let swipeCode = null, swipeDx = 0, swipeOpen = false;
+let dragCode = null, dragY = 0;
 
 const $ = (id) => document.getElementById(id);
+const canvas = $("board");
+const ctx = canvas.getContext ? canvas.getContext("2d") : null;
+const editor = $("editor");
+
 function loadWatchlist() {
-  try { const s = JSON.parse(localStorage.getItem(STORE_LIST)); if (Array.isArray(s) && s.length) return s; } catch (e) {}
-  return ["USD", "CNY", "EUR", "JPY", "GBP", "HKD"];
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE_LIST));
+    if (Array.isArray(s) && s.length) return s.slice(0, MAX_ROWS);
+  } catch (e) {}
+  return [...DEFAULT_LIST];
 }
 function saveWatchlist() { try { localStorage.setItem(STORE_LIST, JSON.stringify(watchlist)); } catch (e) {} }
 
@@ -92,158 +109,217 @@ function toInputValue(x) {
 }
 const convert = (v, from, to) => v / rates[from] * rates[to];
 
-function syncFromAnchor() {
-  const value = parseFloat(anchor.raw);
-  document.querySelectorAll(".amount").forEach(input => {
-    const code = input.dataset.code;
-    if (code === anchor.code) return;
-    input.value = (anchor.raw === "" || isNaN(value)) ? "" : toInputValue(convert(value, anchor.code, code));
-  });
+function computeValues() {
+  const v = parseFloat(anchor.raw);
+  values = {};
+  for (const code of watchlist) {
+    if (code === anchor.code) values[code] = anchor.raw;
+    else values[code] = (anchor.raw === "" || isNaN(v)) ? "" : toInputValue(convert(v, anchor.code, code));
+  }
 }
 
-// ---------- board ----------
-// Each row lives in a .swipe wrapper with a Delete button behind it:
-//  - swipe left reveals Delete (iOS style), tap Delete to remove the row
-//  - long-press (450ms) picks the row up; drag vertically to reorder
+// ---------- drawing ----------
+function boardW() { return canvas.clientWidth || canvas.parentElement.clientWidth || 360; }
+
+function drawRow(code, y, shiftX) {
+  const W = boardW();
+  ctx.save();
+  ctx.translate(shiftX, 0);
+  // flag / badge
+  const cx = 38, cy = y + ROW_H / 2, r = 20;
+  const img = flagImg(code);
+  if (img) {
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
+    ctx.drawImage(img, cx - r, cy - r, r * 2, r * 2);
+    ctx.restore();
+  } else {
+    const [sym, color] = BADGE[code] || [code.slice(0, 2), "#48484a"];
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.fillStyle = "#fff"; ctx.font = "700 15px -apple-system, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(sym, cx, cy + 1);
+  }
+  // code + localized name
+  ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = "#fff"; ctx.font = "600 16px -apple-system, sans-serif";
+  ctx.fillText(code, 70, cy - 3);
+  ctx.fillStyle = "#98989f"; ctx.font = "12px -apple-system, sans-serif";
+  const nm = currencyName(code);
+  ctx.fillText(nm, 70, cy + 15, Math.max(60, W - 70 - 190));
+  // value + rate (hidden while this row is being edited in the overlay)
+  if (editingCode !== code) {
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#fff"; ctx.font = "500 20px -apple-system, sans-serif";
+    ctx.fillText(values[code] || "0", W - 16, cy - 2);
+    ctx.fillStyle = "#636366"; ctx.font = "11px -apple-system, sans-serif";
+    const hint = code === REF ? t("ref") : `1 ${REF} = ${rates[code]}`;
+    ctx.fillText(hint, W - 16, cy + 15);
+  }
+  ctx.restore();
+}
+
+function draw() {
+  if (!ctx) return;
+  const W = boardW(), H = watchlist.length * ROW_H;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = "#1c1c1e";
+  ctx.fillRect(0, 0, W, H);
+  watchlist.forEach((code, i) => {
+    const y = i * ROW_H;
+    if (code === dragCode) return;                    // dragged row drawn last, floating
+    let shift = 0;
+    if (code === swipeCode) {
+      shift = swipeDx;
+      if (shift < 0) {                                 // draw Delete behind the row
+        ctx.fillStyle = "#ff3b30";
+        ctx.fillRect(W + shift, y, -shift, ROW_H);
+        if (shift <= -40) {
+          ctx.fillStyle = "#fff"; ctx.font = "600 15px -apple-system, sans-serif";
+          ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.fillText(t("del"), W + shift / 2, y + ROW_H / 2);
+        }
+      }
+    }
+    if (editingCode === code) {
+      ctx.fillStyle = "rgba(10,132,255,0.10)";
+      ctx.fillRect(0, y, W, ROW_H);
+    }
+    drawRow(code, y, shift);
+    if (i < watchlist.length - 1) {
+      ctx.strokeStyle = "#38383a"; ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(70, y + ROW_H - 0.25); ctx.lineTo(W, y + ROW_H - 0.25); ctx.stroke();
+    }
+  });
+  if (dragCode) {                                      // floating dragged row
+    const y = dragY - ROW_H / 2;
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.55)"; ctx.shadowBlur = 18; ctx.shadowOffsetY = 6;
+    ctx.fillStyle = "#2c2c2e";
+    ctx.beginPath(); ctx.roundRect(4, y, W - 8, ROW_H, 12); ctx.fill();
+    ctx.restore();
+    drawRow(dragCode, y, 0);
+  }
+}
+
+function fitCanvas() {
+  const W = boardW(), H = watchlist.length * ROW_H;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.style.height = H + "px";
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
+}
+
+// ---------- editor overlay ----------
+function openEditor(code) {
+  closeSwipe();
+  editingCode = code;
+  anchor = { code, raw: values[code] || "" };
+  computeValues();
+  const idx = watchlist.indexOf(code);
+  editor.classList.remove("hidden");
+  editor.style.top = (idx * ROW_H + 13) + "px";
+  editor.value = anchor.raw;
+  draw();
+  editor.focus();
+  try { editor.select(); } catch (e) {}
+}
+function closeEditor() {
+  if (editingCode === null) return;
+  editingCode = null;
+  editor.classList.add("hidden");
+  draw();
+}
+editor.addEventListener("input", () => {
+  if (editingCode === null) return;
+  anchor = { code: editingCode, raw: editor.value };
+  computeValues(); draw();
+});
+editor.addEventListener("blur", closeEditor);
+editor.addEventListener("keydown", (e) => { if (e.key === "Enter") editor.blur(); });
+
+// ---------- swipe / drag gestures (canvas owns them all) ----------
+function closeSwipe() { swipeCode = null; swipeDx = 0; swipeOpen = false; }
+
 function deleteCurrency(code) {
   if (watchlist.length <= 1) return;
   watchlist = watchlist.filter(c => c !== code);
   if (anchor.code === code) anchor = { code: watchlist[0], raw: "100" };
-  saveWatchlist(); renderBoard();
+  closeSwipe(); closeEditor();
+  saveWatchlist(); computeValues(); fitCanvas();
 }
 
-function closeAllSwipes(except) {
-  document.querySelectorAll(".swipe.open").forEach(w => {
-    if (w !== except) { w.classList.remove("open"); w.querySelector(".currency-row").style.transform = ""; }
-  });
-}
-
-function attachGestures(wrap, row, code) {
-  let startX = 0, startY = 0, dx = 0, dy = 0, baseX = 0;
-  let mode = null;            // null | "swipe" | "drag"
-  let longTimer = null, moved = false;
-  const DEL_W = 84;
-  row.addEventListener("contextmenu", (e) => e.preventDefault());
-
-  row.addEventListener("pointerdown", (e) => {
-    if (e.target.closest(".del-btn")) return;
-    closeAllSwipes(wrap);
-    startX = e.clientX; startY = e.clientY; dx = 0; dy = 0; moved = false; mode = null;
-    baseX = wrap.classList.contains("open") ? -DEL_W : 0;
-    row.setPointerCapture && row.setPointerCapture(e.pointerId);
-    longTimer = setTimeout(() => {
-      if (moved) return;
-      mode = "drag";
-      row.style.touchAction = "none";
-      row.classList.add("dragging");
-      wrap.classList.add("drag-wrap");
-      if (navigator.vibrate) navigator.vibrate(10);
-      const inp = row.querySelector(".amount"); if (inp) inp.blur();
-    }, 450);
-  });
-
-  row.addEventListener("pointermove", (e) => {
-    if (!startX && startX !== 0) return;
-    dx = e.clientX - startX; dy = e.clientY - startY;
-    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
-      moved = true;
-      if (longTimer) { /* keep timer: a slow hold that drifts a little still counts */ }
+let g = null;  // active gesture
+canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+canvas.addEventListener("pointerdown", (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left, y = e.clientY - rect.top;
+  const idx = Math.floor(y / ROW_H);
+  if (idx < 0 || idx >= watchlist.length) return;
+  const code = watchlist[idx];
+  // Tapping the revealed Delete area deletes.
+  if (swipeOpen && code === swipeCode && x > boardW() - DEL_W) { deleteCurrency(code); return; }
+  canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+  g = { code, startX: x, startY: y, dx: 0, dy: 0, mode: null, idx };
+  if (swipeOpen && code === swipeCode) g.base = -DEL_W; else g.base = 0;
+  g.longTimer = setTimeout(() => {
+    if (!g || g.mode) return;
+    g.mode = "drag"; dragCode = code; dragY = g.startY;
+    document.body.style.overflow = "hidden";          // lock page scroll while dragging
+    closeEditor(); closeSwipe();
+    if (navigator.vibrate) navigator.vibrate(10);
+    draw();
+  }, 450);
+});
+canvas.addEventListener("pointermove", (e) => {
+  if (!g) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left, y = e.clientY - rect.top;
+  g.dx = x - g.startX; g.dy = y - g.startY;
+  if (g.mode === "drag") {
+    dragY = y;
+    const target = Math.max(0, Math.min(watchlist.length - 1, Math.floor(y / ROW_H)));
+    const cur = watchlist.indexOf(dragCode);
+    if (target !== cur) {
+      watchlist.splice(cur, 1); watchlist.splice(target, 0, dragCode);
     }
-    if (mode === "drag") {
-      e.preventDefault();
-      row.style.transform = `translateY(${dy}px)`;
-      // Swap with the sibling whose middle the pointer has crossed.
-      const board = $("board");
-      const others = [...board.querySelectorAll(".swipe:not(.drag-wrap)")];
-      for (const sib of others) {
-        const r = sib.getBoundingClientRect();
-        if (e.clientY < r.top + r.height / 2 && wrap.compareDocumentPosition(sib) & Node.DOCUMENT_POSITION_PRECEDING) {
-          board.insertBefore(wrap, sib); startY += r.height; dy = e.clientY - startY;
-          row.style.transform = `translateY(${dy}px)`; break;
-        }
-        if (e.clientY > r.top + r.height / 2 && wrap.compareDocumentPosition(sib) & Node.DOCUMENT_POSITION_FOLLOWING) {
-          board.insertBefore(wrap, sib.nextSibling); startY -= r.height; dy = e.clientY - startY;
-          row.style.transform = `translateY(${dy}px)`; break;
-        }
-      }
-    } else if (mode !== "swipe" && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
-      mode = "swipe";
-      if (longTimer) { clearTimeout(longTimer); longTimer = null; }
-      row.style.transition = "none";
-    }
-    if (mode === "swipe") {
-      const x = Math.max(-DEL_W, Math.min(0, baseX + dx));
-      row.style.transform = `translateX(${x}px)`;
-    }
-  });
-
-  const end = (e) => {
-    if (longTimer) { clearTimeout(longTimer); longTimer = null; }
-    row.style.touchAction = "";
-    if (mode === "drag") {
-      row.classList.remove("dragging"); wrap.classList.remove("drag-wrap");
-      row.style.transform = "";
-      watchlist = [...$("board").querySelectorAll(".swipe")].map(w => w.dataset.code);
-      saveWatchlist(); renderBoard();
-    } else if (mode === "swipe") {
-      row.style.transition = "";
-      const x = baseX + dx;
-      if (x < -DEL_W / 2) { wrap.classList.add("open"); row.style.transform = `translateX(${-DEL_W}px)`; }
-      else { wrap.classList.remove("open"); row.style.transform = ""; }
-    } else if (wrap.classList.contains("open") && Math.abs(dx) < 5 && Math.abs(dy) < 5) {
-      wrap.classList.remove("open"); row.style.transform = "";   // tap closes an open row
-    }
-    mode = null; startX = NaN;
-  };
-  row.addEventListener("pointerup", end);
-  row.addEventListener("pointercancel", end);
-}
-
-function renderBoard() {
-  const board = $("board");
-  board.innerHTML = "";
-  for (const code of watchlist) {
-    const wrap = document.createElement("div");
-    wrap.className = "swipe"; wrap.dataset.code = code;
-
-    const del = document.createElement("button");
-    del.className = "del-btn"; del.textContent = t("del");
-    del.addEventListener("click", () => deleteCurrency(code));
-    wrap.appendChild(del);
-
-    const row = document.createElement("div");
-    row.className = "currency-row";
-    row.appendChild(flagNode(code));
-
-    const meta = document.createElement("div");
-    meta.className = "meta";
-    const hint = code === REF ? t("ref") : `1 ${REF} = ${rates[code]}`;
-    meta.innerHTML = `<div class="code">${code}</div><div class="name"></div><div class="hint">${hint}</div>`;
-    meta.querySelector(".name").textContent = currencyName(code);
-    row.appendChild(meta);
-
-    const input = document.createElement("input");
-    input.className = "amount"; input.dataset.code = code;
-    input.type = "number"; input.min = "0"; input.step = "any";
-    input.inputMode = "decimal"; input.placeholder = "0";
-    input.setAttribute("aria-label", code);
-    input.addEventListener("input", () => { anchor = { code, raw: input.value }; syncFromAnchor(); });
-    row.appendChild(input);
-
-    wrap.appendChild(row);
-    attachGestures(wrap, row, code);
-    board.appendChild(wrap);
+    draw();
+  } else if (g.mode === "swipe" || (Math.abs(g.dx) > 10 && Math.abs(g.dx) > Math.abs(g.dy))) {
+    if (g.mode !== "swipe") { g.mode = "swipe"; clearTimeout(g.longTimer); if (editingCode) closeEditor(); }
+    swipeCode = g.code;
+    swipeDx = Math.max(-DEL_W, Math.min(0, (g.base || 0) + g.dx));
+    draw();
   }
-  const ai = document.querySelector(`.amount[data-code="${anchor.code}"]`);
-  if (ai) ai.value = anchor.raw;
-  syncFromAnchor();
-  $("updated").textContent = updatedUtc ? t("updated").replace("{t}", updatedUtc) : "";
+});
+function endGesture(e) {
+  if (!g) return;
+  clearTimeout(g.longTimer);
+  document.body.style.overflow = "";
+  if (g.mode === "drag") {
+    dragCode = null;
+    saveWatchlist(); draw();
+  } else if (g.mode === "swipe") {
+    if (swipeDx < -DEL_W / 2) { swipeOpen = true; swipeDx = -DEL_W; }
+    else closeSwipe();
+    draw();
+  } else {
+    // plain tap
+    if (swipeOpen) { closeSwipe(); draw(); }
+    else if (editingCode !== g.code) openEditor(g.code);
+  }
+  g = null;
 }
+canvas.addEventListener("pointerup", endGesture);
+canvas.addEventListener("pointercancel", endGesture);
 
-// ---------- picker (add currency; flag grid, no dropdowns) ----------
+// ---------- picker ----------
 function renderPicker(filter = "") {
   const grid = $("pickerGrid");
   grid.innerHTML = "";
+  $("pickerNote").textContent = watchlist.length >= MAX_ROWS ? t("max") : "";
   const q = filter.trim().toLowerCase();
   for (const code of Object.keys(rates).sort()) {
     if (watchlist.includes(code)) continue;
@@ -258,25 +334,46 @@ function renderPicker(filter = "") {
     label.append(document.createTextNode(code), nm);
     b.appendChild(label);
     b.addEventListener("click", () => {
+      if (watchlist.length >= MAX_ROWS) { $("pickerNote").textContent = t("max"); return; }
       watchlist.push(code); saveWatchlist();
-      $("picker").classList.add("hidden"); renderBoard();
+      computeValues(); fitCanvas();
+      $("picker").classList.add("hidden");
     });
     grid.appendChild(b);
   }
 }
+function flagNode(code) {
+  const cc = FLAG[code];
+  if (cc) {
+    const img = document.createElement("img");
+    img.className = "flag"; img.alt = code; img.loading = "lazy"; img.draggable = false;
+    img.src = FLAG_DIR + cc + ".svg";
+    img.onerror = () => img.replaceWith(badgeNode(code));
+    return img;
+  }
+  return badgeNode(code);
+}
+function badgeNode(code) {
+  const [sym, color] = BADGE[code] || [code.slice(0, 2), "#48484a"];
+  const d = document.createElement("div");
+  d.className = "flag-badge"; d.style.background = color; d.textContent = sym; d.title = code;
+  return d;
+}
 
-// ---------- static texts / language ----------
+// ---------- language ----------
 function applyLanguage() {
   document.documentElement.lang = lang;
   $("uiTitle").textContent = t("title");
   $("uiSub").textContent = t("sub");
+  $("uiHint").textContent = t("hint");
   $("addBtn").textContent = t("add");
   $("refreshBtn").textContent = t("refresh");
-  $("uiHint").textContent = t("hint");
   $("pickerTitle").textContent = t("picker");
   $("pickerSearch").placeholder = t("search");
   document.title = t("title");
-  if (Object.keys(rates).length) { renderBoard(); if (!$("picker").classList.contains("hidden")) renderPicker($("pickerSearch").value); }
+  draw();
+  if (!$("picker").classList.contains("hidden")) renderPicker($("pickerSearch").value);
+  $("updated").textContent = updatedUtc ? t("updated").replace("{t}", updatedUtc) : "";
 }
 
 // ---------- data ----------
@@ -286,7 +383,9 @@ async function loadRates() {
   const data = await res.json();
   if (data.result !== "success") throw new Error("Provider error");
   rates = data.rates; updatedUtc = data.time_last_update_utc;
-  renderBoard();
+  if (!rates[anchor.code]) anchor = { code: REF, raw: anchor.raw };
+  computeValues(); fitCanvas();
+  $("updated").textContent = t("updated").replace("{t}", updatedUtc);
 }
 
 async function init() {
@@ -299,7 +398,10 @@ async function init() {
     try { localStorage.setItem(STORE_LANG, lang); } catch (e) {}
     applyLanguage();
   });
+  computeValues();
+  fitCanvas();
   applyLanguage();
+  window.addEventListener("resize", fitCanvas);
   try {
     await loadRates();
     setInterval(() => loadRates().catch(() => {}), 60000);
@@ -307,6 +409,7 @@ async function init() {
 }
 
 $("addBtn").addEventListener("click", () => {
+  closeEditor();
   $("pickerSearch").value = ""; renderPicker();
   $("picker").classList.remove("hidden");
 });
@@ -317,4 +420,7 @@ $("refreshBtn").addEventListener("click", async () => {
   $("error").textContent = "";
   try { await loadRates(); } catch (e) { $("error").textContent = t("loadErr") + e.message; }
 });
+
+// Debug/test handle (read-only view of the board state).
+window.__rtcc = { get watchlist() { return [...watchlist]; }, get values() { return { ...values }; }, get anchor() { return { ...anchor }; } };
 init();

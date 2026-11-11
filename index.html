@@ -14,7 +14,10 @@
   </header>
   <p class="sub" id="uiSub">Type in any box — all other currencies update instantly at the live rate.</p>
 
-  <div id="board"></div>
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="board"></canvas>
+    <input id="editor" class="editor hidden" type="number" inputmode="decimal" step="any" min="0">
+  </div>
   <p id="uiHint" class="hintbar"></p>
 
   <div class="actions">
@@ -33,6 +36,7 @@
       <button id="pickerClose" class="close">✕</button>
     </div>
     <input id="pickerSearch" type="search">
+    <p id="pickerNote" class="picker-note"></p>
     <div id="pickerGrid" class="picker-grid"></div>
   </div>
 </div>
