@@ -10,8 +10,11 @@
 //    drawn during a long-press drag, so it cannot leak through.
 //
 // Interactions:
-//  - Tap a row: a real <input> overlays that row; typing re-anchors the
-//    whole board (all other rows recompute from that row's amount).
+//  - Tap a row's VALUE (right side only): a real <input> overlays that
+//    row, styled red / larger / bold while editing; typing re-anchors
+//    the whole board (all other rows recompute from that row's amount).
+//    Tapping the flag/name area does nothing, so edits aren't triggered
+//    by accident.
 //  - Swipe a row left: reveals the drawn Delete area; tap it to remove.
 //  - Long-press (450ms) a row: pick it up and drag to reorder.
 //  - At most 7 currencies are shown at once.
@@ -44,7 +47,7 @@ const STR = {
   updated: { en: "Rates last updated: {t} · Source: ExchangeRate-API · Auto-refresh every 60s", "zh-CN": "汇率更新时间：{t} · 数据来源：ExchangeRate-API · 每 60 秒自动刷新", "zh-TW": "匯率更新時間：{t} · 資料來源：ExchangeRate-API · 每 60 秒自動重新整理", ja: "レート更新：{t} · 出典：ExchangeRate-API · 60秒ごとに自動更新", ko: "환율 업데이트: {t} · 출처: ExchangeRate-API · 60초마다 자동 새로고침", es: "Tasas actualizadas: {t} · Fuente: ExchangeRate-API · Actualización automática cada 60 s", fr: "Taux mis à jour : {t} · Source : ExchangeRate-API · Actualisation auto toutes les 60 s", de: "Kurse aktualisiert: {t} · Quelle: ExchangeRate-API · Auto-Aktualisierung alle 60 s", pt: "Taxas atualizadas: {t} · Fonte: ExchangeRate-API · Atualização automática a cada 60 s", it: "Tassi aggiornati: {t} · Fonte: ExchangeRate-API · Aggiornamento automatico ogni 60 s", ru: "Курсы обновлены: {t} · Источник: ExchangeRate-API · Автообновление каждые 60 с", ar: "آخر تحديث للأسعار: {t} · المصدر: ExchangeRate-API · تحديث تلقائي كل 60 ثانية" },
   max:     { en: "Maximum 7 currencies — remove one first.", "zh-CN": "最多显示 7 个货币，请先删除一个。", "zh-TW": "最多顯示 7 個貨幣，請先刪除一個。", ja: "最大7通貨までです。先に1つ削除してください。", ko: "최대 7개 통화까지 표시됩니다. 먼저 하나를 삭제하세요.", es: "Máximo 7 divisas: elimina una primero.", fr: "7 devises maximum — supprimez-en une d'abord.", de: "Maximal 7 Währungen — zuerst eine entfernen.", pt: "Máximo de 7 moedas — remova uma primeiro.", it: "Massimo 7 valute: rimuovine prima una.", ru: "Максимум 7 валют — сначала удалите одну.", ar: "بحد أقصى 7 عملات — احذف واحدة أولًا." },
   del:     { en: "Delete", "zh-CN": "删除", "zh-TW": "刪除", ja: "削除", ko: "삭제", es: "Eliminar", fr: "Supprimer", de: "Löschen", pt: "Excluir", it: "Elimina", ru: "Удалить", ar: "حذف" },
-  hint:    { en: "Tap a row to edit · Swipe left to delete · Long-press & drag to reorder", "zh-CN": "点一行编辑 · 左滑删除 · 长按拖动排序", "zh-TW": "點一行編輯 · 左滑刪除 · 長按拖動排序", ja: "行を左スワイプで削除 · 長押ししてドラッグで並べ替え", ko: "행을 왼쪽으로 밀어 삭제 · 길게 눌러 드래그하면 순서 변경", es: "Desliza a la izquierda para eliminar · Mantén pulsado y arrastra para reordenar", fr: "Glisser vers la gauche pour supprimer · Appui long puis glisser pour réordonner", de: "Zum Löschen nach links wischen · Lange drücken und ziehen zum Sortieren", pt: "Deslize para a esquerda para excluir · Pressione e arraste para reordenar", it: "Scorri a sinistra per eliminare · Premi a lungo e trascina per riordinare", ru: "Свайп влево — удалить · Долгое нажатие и перетаскивание — изменить порядок", ar: "اسحب لليسار للحذف · اضغط مطولًا واسحب لإعادة الترتيب" },
+  hint:    { en: "Tap a value to edit · Swipe left to delete · Long-press & drag to reorder", "zh-CN": "点数值编辑 · 左滑删除 · 长按拖动排序", "zh-TW": "點數值編輯 · 左滑刪除 · 長按拖動排序", ja: "数値をタップして編集 · 左スワイプで削除 · 長押しドラッグで並べ替え", ko: "값을 탭해 편집 · 왼쪽으로 밀어 삭제 · 길게 눌러 드래그하면 순서 변경", es: "Toca un valor para editar · Desliza a la izquierda para eliminar · Mantén pulsado y arrastra para reordenar", fr: "Touchez une valeur pour modifier · Glisser vers la gauche pour supprimer · Appui long puis glisser pour réordonner", de: "Wert antippen zum Bearbeiten · Zum Löschen nach links wischen · Lange drücken und ziehen zum Sortieren", pt: "Toque num valor para editar · Deslize para a esquerda para excluir · Pressione e arraste para reordenar", it: "Tocca un valore per modificare · Scorri a sinistra per eliminare · Premi a lungo e trascina per riordinare", ru: "Коснитесь значения, чтобы изменить · Свайп влево — удалить · Долгое нажатие и перетаскивание — изменить порядок", ar: "انقر على قيمة للتحرير · اسحب لليسار للحذف · اضغط مطولًا واسحب لإعادة الترتيب" },
   ref:     { en: "reference", "zh-CN": "基准", "zh-TW": "基準", ja: "基準", ko: "기준", es: "referencia", fr: "référence", de: "Referenz", pt: "referência", it: "riferimento", ru: "базовая", ar: "مرجع" },
   loadErr: { en: "Could not load rates: ", "zh-CN": "汇率加载失败：", "zh-TW": "匯率載入失敗：", ja: "レートを読み込めませんでした：", ko: "환율을 불러오지 못했습니다: ", es: "No se pudieron cargar las tasas: ", fr: "Impossible de charger les taux : ", de: "Kurse konnten nicht geladen werden: ", pt: "Não foi possível carregar as taxas: ", it: "Impossibile caricare i tassi: ", ru: "Не удалось загрузить курсы: ", ar: "تعذر تحميل الأسعار: " },
 };
@@ -183,7 +186,7 @@ function draw() {
       }
     }
     if (editingCode === code) {
-      ctx.fillStyle = "rgba(10,132,255,0.10)";
+      ctx.fillStyle = "rgba(255,59,48,0.12)";
       ctx.fillRect(0, y, W, ROW_H);
     }
     drawRow(code, y, shift);
@@ -214,6 +217,18 @@ function fitCanvas() {
 }
 
 // ---------- editor overlay ----------
+// Left edge (CSS px) of a row's right-aligned value text. Only taps at
+// or right of this edge (minus a small tolerance) open the editor —
+// tapping the flag/name area must not trigger editing.
+function valueLeftEdge(code) {
+  const W = boardW();
+  if (!ctx) return W * 0.5;
+  ctx.save();
+  ctx.font = "500 20px -apple-system, sans-serif";
+  const w = ctx.measureText(values[code] || "0").width;
+  ctx.restore();
+  return W - 16 - w;
+}
 function openEditor(code) {
   closeSwipe();
   editingCode = code;
@@ -221,7 +236,7 @@ function openEditor(code) {
   computeValues();
   const idx = watchlist.indexOf(code);
   editor.classList.remove("hidden");
-  editor.style.top = (idx * ROW_H + 13) + "px";
+  editor.style.top = (idx * ROW_H + 11) + "px";
   editor.value = anchor.raw;
   draw();
   editor.focus();
@@ -306,9 +321,9 @@ function endGesture(e) {
     else closeSwipe();
     draw();
   } else {
-    // plain tap
+    // plain tap: only a tap on the value itself opens the editor
     if (swipeOpen) { closeSwipe(); draw(); }
-    else if (editingCode !== g.code) openEditor(g.code);
+    else if (editingCode !== g.code && g.startX >= valueLeftEdge(g.code) - 14) openEditor(g.code);
   }
   g = null;
 }

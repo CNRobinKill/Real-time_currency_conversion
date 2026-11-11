@@ -22,11 +22,14 @@ h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 8px 0; 
    gesture that starts on the board. */
 .canvas-wrap { position: relative; border-radius: 20px; overflow: hidden; background: #1c1c1e; }
 #board { display: block; width: 100%; touch-action: none; }
+/* Editing state: red, larger and bolder than the resting value
+   (canvas draws the resting value white, 20px, weight 500). */
 .editor {
-  position: absolute; right: 10px; width: 52%; height: 42px;
+  position: absolute; right: 10px; width: 55%; height: 46px;
   background: transparent; border: none; outline: none;
-  border-bottom: 2px solid #0a84ff;
-  color: #fff; font-size: 20px; font-weight: 500; text-align: right;
+  border-bottom: 2px solid #ff3b30;
+  color: #ff3b30; caret-color: #ff3b30;
+  font-size: 26px; font-weight: 700; text-align: right;
   font-variant-numeric: tabular-nums; font-family: inherit;
 }
 .editor.hidden { display: none; }
