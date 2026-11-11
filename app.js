@@ -274,6 +274,28 @@ function openEditor(code) {
   draw();
   editor.focus();
   try { editor.select(); } catch (e) {}
+  // The on-screen keyboard would otherwise cover rows near the bottom:
+  // scroll the page so the editor sits inside the visible viewport.
+  setTimeout(() => ensureEditorVisible(true), 350);
+}
+// Keep the editor inside the visual viewport (which shrinks when the
+// software keyboard opens). Runs on open and on every viewport resize
+// while editing.
+function ensureEditorVisible(smooth) {
+  if (editingCode === null) return;
+  const vv = window.visualViewport;
+  const r = editor.getBoundingClientRect();
+  const vTop = vv ? vv.offsetTop : 0;
+  const vBottom = vv ? vv.offsetTop + vv.height : window.innerHeight;
+  const margin = 14;
+  if (r.bottom > vBottom - margin) {
+    window.scrollBy({ top: r.bottom - (vBottom - margin), behavior: smooth ? "smooth" : "auto" });
+  } else if (r.top < vTop + margin) {
+    window.scrollBy({ top: r.top - vTop - margin, behavior: smooth ? "smooth" : "auto" });
+  }
+}
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", () => ensureEditorVisible(false));
 }
 function closeEditor() {
   if (editingCode === null) return;
