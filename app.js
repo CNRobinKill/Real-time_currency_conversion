@@ -32,7 +32,7 @@ const ROW_H = 68;
 const DEL_W = 84;
 const STORE_LIST = "rtcc.watchlist.v4";
 const STORE_LANG = "rtcc.lang.v1";
-const DEFAULT_LIST = ["USD", "CNH", "TRY", "HKD", "JPY", "GBP", "EUR"];
+const DEFAULT_LIST = ["USD", "CNH", "GBP", "HKD", "TRY", "JPY", "EUR"];
 
 // ---------- i18n ----------
 const LANGS = [
@@ -45,7 +45,7 @@ const STR = {
   title:   { en: "Currency Converter", "zh-CN": "货币换算", "zh-TW": "貨幣換算", ja: "通貨コンバーター", ko: "환율 계산기", es: "Conversor de divisas", fr: "Convertisseur de devises", de: "Währungsrechner", pt: "Conversor de moedas", it: "Convertitore di valuta", ru: "Конвертер валют", ar: "محول العملات" },
   sub:     { en: "Type in any box — all other currencies update instantly at the live rate.", "zh-CN": "在任意输入框输入金额，其它货币按实时汇率立即同步变化。", "zh-TW": "在任意輸入框輸入金額，其它貨幣按即時匯率立即同步變化。", ja: "任意の欄に入力すると、他の通貨がライブレートで即座に更新されます。", ko: "아무 칸에나 입력하면 다른 통화가 실시간 환율로 즉시 바뀝니다.", es: "Escribe en cualquier casilla: el resto se actualiza al instante con el tipo en vivo.", fr: "Saisissez un montant dans n'importe quel champ : les autres devises se mettent à jour instantanément.", de: "Betrag in ein beliebiges Feld eingeben — alle anderen Währungen aktualisieren sich sofort zum Live-Kurs.", pt: "Digite em qualquer campo — as outras moedas atualizam instantaneamente à taxa ao vivo.", it: "Digita in qualsiasi casella: le altre valute si aggiornano subito al tasso live.", ru: "Введите сумму в любое поле — остальные валюты мгновенно обновятся по живому курсу.", ar: "اكتب في أي خانة — تتحدث العملات الأخرى فورًا بالسعر المباشر." },
   add:     { en: "＋ Add currency", "zh-CN": "＋ 添加货币", "zh-TW": "＋ 添加貨幣", ja: "＋ 通貨を追加", ko: "＋ 통화 추가", es: "＋ Añadir divisa", fr: "＋ Ajouter une devise", de: "＋ Währung hinzufügen", pt: "＋ Adicionar moeda", it: "＋ Aggiungi valuta", ru: "＋ Добавить валюту", ar: "＋ إضافة عملة" },
-  refresh: { en: "↻ Refresh rates", "zh-CN": "↻ 刷新汇率", "zh-TW": "↻ 重新整理匯率", ja: "↻ レート更新", ko: "↻ 환율 새로고침", es: "↻ Actualizar tasas", fr: "↻ Actualiser les taux", de: "↻ Kurse aktualisieren", pt: "↻ Atualizar taxas", it: "↻ Aggiorna tassi", ru: "↻ Обновить курсы", ar: "↻ تحديث الأسعار" },
+  reset:   { en: "Reset", "zh-CN": "重置初始", "zh-TW": "重置初始", ja: "初期状態にリセット", ko: "초기값으로 재설정", es: "Restablecer", fr: "Réinitialiser", de: "Zurücksetzen", pt: "Redefinir", it: "Ripristina", ru: "Сбросить", ar: "إعادة تعيين" },
   picker:  { en: "Add currency", "zh-CN": "添加货币", "zh-TW": "添加貨幣", ja: "通貨を追加", ko: "통화 추가", es: "Añadir divisa", fr: "Ajouter une devise", de: "Währung hinzufügen", pt: "Adicionar moeda", it: "Aggiungi valuta", ru: "Добавить валюту", ar: "إضافة عملة" },
   search:  { en: "Search code or name", "zh-CN": "搜索代码或名称", "zh-TW": "搜尋代碼或名稱", ja: "コードまたは名前で検索", ko: "코드 또는 이름 검색", es: "Buscar código o nombre", fr: "Rechercher un code ou un nom", de: "Code oder Name suchen", pt: "Pesquisar código ou nome", it: "Cerca codice o nome", ru: "Поиск по коду или названию", ar: "ابحث بالرمز أو الاسم" },
   updated: { en: "Rates last updated: {t} · Source: ExchangeRate-API · Auto-refresh every 60s", "zh-CN": "汇率更新时间：{t} · 数据来源：ExchangeRate-API · 每 60 秒自动刷新", "zh-TW": "匯率更新時間：{t} · 資料來源：ExchangeRate-API · 每 60 秒自動重新整理", ja: "レート更新：{t} · 出典：ExchangeRate-API · 60秒ごとに自動更新", ko: "환율 업데이트: {t} · 출처: ExchangeRate-API · 60초마다 자동 새로고침", es: "Tasas actualizadas: {t} · Fuente: ExchangeRate-API · Actualización automática cada 60 s", fr: "Taux mis à jour : {t} · Source : ExchangeRate-API · Actualisation auto toutes les 60 s", de: "Kurse aktualisiert: {t} · Quelle: ExchangeRate-API · Auto-Aktualisierung alle 60 s", pt: "Taxas atualizadas: {t} · Fonte: ExchangeRate-API · Atualização automática a cada 60 s", it: "Tassi aggiornati: {t} · Fonte: ExchangeRate-API · Aggiornamento automatico ogni 60 s", ru: "Курсы обновлены: {t} · Источник: ExchangeRate-API · Автообновление каждые 60 с", ar: "آخر تحديث للأسعار: {t} · المصدر: ExchangeRate-API · تحديث تلقائي كل 60 ثانية" },
@@ -61,6 +61,8 @@ const STR = {
   high:    { en: "30d high", "zh-CN": "30天最高", "zh-TW": "30天最高", ja: "30日最高", ko: "30일 최고", es: "Máx. 30d", fr: "Max 30 j", de: "30T-Hoch", pt: "Máx. 30d", it: "Max 30g", ru: "Макс. 30 дн.", ar: "الأعلى في 30 يومًا" },
   low:     { en: "30d low", "zh-CN": "30天最低", "zh-TW": "30天最低", ja: "30日最安", ko: "30일 최저", es: "Mín. 30d", fr: "Min 30 j", de: "30T-Tief", pt: "Mín. 30d", it: "Min 30g", ru: "Мин. 30 дн.", ar: "الأدنى في 30 يومًا" },
   change:  { en: "30d change", "zh-CN": "30天涨跌", "zh-TW": "30天漲跌", ja: "30日変化", ko: "30일 변동", es: "Cambio 30d", fr: "Variation 30 j", de: "30T-Änderung", pt: "Variação 30d", it: "Variazione 30g", ru: "Изм. за 30 дн.", ar: "تغير 30 يومًا" },
+  live:    { en: "Live rates", "zh-CN": "实时汇率", "zh-TW": "即時匯率", ja: "リアルタイムレート", ko: "실시간 환율", es: "Tasas en vivo", fr: "Taux en direct", de: "Live-Kurse", pt: "Taxas ao vivo", it: "Tassi in tempo reale", ru: "Курсы в реальном времени", ar: "أسعار مباشرة" },
+  stale:   { en: "Non-live rates", "zh-CN": "非实时汇率", "zh-TW": "非即時匯率", ja: "リアルタイムではありません", ko: "실시간 환율이 아님", es: "Tasas no en vivo", fr: "Taux non en direct", de: "Keine Live-Kurse", pt: "Taxas não ao vivo", it: "Tassi non in tempo reale", ru: "Курсы не в реальном времени", ar: "أسعار غير مباشرة" },
 };
 let lang = localStorage.getItem(STORE_LANG) || "en";
 const t = (key) => (STR[key] && (STR[key][lang] || STR[key].en)) || key;
@@ -504,7 +506,8 @@ function applyLanguage() {
   $("uiSub").textContent = t("sub");
   $("uiHint").textContent = t("hint");
   $("addBtn").textContent = t("add");
-  $("refreshBtn").textContent = t("refresh");
+  $("resetBtn").textContent = t("reset");
+  setStatusUI();
   $("pickerTitle").textContent = t("picker");
   $("pickerSearch").placeholder = t("search");
   document.title = t("title");
@@ -539,6 +542,19 @@ async function loadExtras() {
   }
 }
 
+// ---------- live status ----------
+// The dot under the board is green only while the newest fetch has
+// succeeded; any failure flips it red ("non-live"). There is NO
+// offline cache by design: on failure the board keeps showing this
+// session's in-memory data (or the error, if nothing loaded yet).
+let ratesLive = false;
+function setStatusUI() {
+  const dot = $("statusDot"), tx = $("statusText");
+  if (!dot || !tx) return;
+  dot.classList.toggle("live", ratesLive);
+  tx.textContent = ratesLive ? t("live") : t("stale");
+}
+
 async function loadRates() {
   const res = await fetch(API);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -546,6 +562,8 @@ async function loadRates() {
   if (data.result !== "success") throw new Error("Provider error");
   rates = { ...data.rates, ...extraRates }; updatedUtc = data.time_last_update_utc;
   if (!rates[anchor.code]) anchor = { code: watchlist[0], raw: anchor.raw };
+  ratesLive = true; $("error").textContent = "";
+  setStatusUI();
   computeValues(); fitCanvas();
   $("updated").textContent = t("updated").replace("{t}", updatedUtc);
   // Refresh the extras alongside; merge and redraw when they land.
@@ -573,8 +591,11 @@ async function init() {
   window.addEventListener("resize", fitCanvas);
   try {
     await loadRates();
-    setInterval(() => loadRates().catch(() => {}), 60000);
-  } catch (e) { $("error").textContent = t("loadErr") + e.message; }
+  } catch (e) {
+    ratesLive = false; setStatusUI();
+    $("error").textContent = t("loadErr") + e.message;
+  }
+  setInterval(() => loadRates().catch(() => { ratesLive = false; setStatusUI(); }), 60000);
 }
 
 $("addBtn").addEventListener("click", () => {
@@ -585,9 +606,13 @@ $("addBtn").addEventListener("click", () => {
 $("pickerClose").addEventListener("click", () => $("picker").classList.add("hidden"));
 $("picker").addEventListener("click", (e) => { if (e.target === $("picker")) $("picker").classList.add("hidden"); });
 $("pickerSearch").addEventListener("input", (e) => renderPicker(e.target.value));
-$("refreshBtn").addEventListener("click", async () => {
-  $("error").textContent = "";
-  try { await loadRates(); } catch (e) { $("error").textContent = t("loadErr") + e.message; }
+$("resetBtn").addEventListener("click", () => {
+  // Reset the whole board to the initial state: the default 7
+  // currencies in their default order, USD (the benchmark) = 100.
+  watchlist = [...DEFAULT_LIST];
+  anchor = { code: "USD", raw: "100" };
+  collapseChart(); closeEditor(); closeSwipe();
+  saveWatchlist(); computeValues(); fitCanvas();
 });
 
 // ---------- inline trend chart (tap a row's flag / name) ----------
@@ -849,5 +874,8 @@ function drawChartRegion(top) {
 }
 
 // Debug/test handle (read-only view of the board state).
-window.__rtcc = { get watchlist() { return [...watchlist]; }, get values() { return { ...values }; }, get anchor() { return { ...anchor }; }, get rates() { return { ...rates }; }, get expandedCode() { return expandedCode; }, get pairChart() { return pairChart; }, get chartFlipped() { return chartFlipped; }, openChart, collapseChart, loadPairChart };
+window.__rtcc = { get watchlist() { return [...watchlist]; }, get values() { return { ...values }; }, get anchor() { return { ...anchor }; }, get rates() { return { ...rates }; }, get expandedCode() { return expandedCode; }, get pairChart() { return pairChart; }, get chartFlipped() { return chartFlipped; }, get ratesLive() { return ratesLive; }, openChart, collapseChart, loadPairChart };
+// PWA: installable via manifest.webmanifest; the service worker is
+// network-only (no offline cache by design).
+if ("serviceWorker" in navigator) { navigator.serviceWorker.register("sw.js").catch(() => {}); }
 init();

@@ -36,8 +36,8 @@ CLI. 160+ world currencies, in the browser or from the command line.
 - **Logo**: a self-designed mark (`logo.svg` — circular exchange arrows
   around a gold coin on a blue→purple gradient) used as the header logo,
   favicon and touch icon (`apple-touch-icon.png`, `icon-192/512.png`).
-- **Editable currency list** (max **7** at once; defaults USD, CNH, TRY,
-  HKD, JPY, GBP, EUR): add currencies from a searchable flag picker
+- **Editable currency list** (max **7** at once; defaults USD, CNH, GBP,
+  HKD, TRY, JPY, EUR): add currencies from a searchable flag picker
   (tap ＋ Add currency), **tap a row to edit its amount** (a real input
   overlays the row), **swipe a row left to delete it**, **long-press a
   row and drag to reorder**. Your list and its order are remembered
@@ -51,8 +51,15 @@ CLI. 160+ world currencies, in the browser or from the command line.
 - 160+ currencies supported (USD, CNY, EUR, JPY, GBP, …), all converted
   from a single rate snapshot so the whole board is always consistent
 - Shows each row's rate and when the provider last updated the rates
-- Rates auto-refresh every 60 seconds (the amount you typed stays put);
-  manual refresh button too
+- Rates auto-refresh every 60 seconds (the amount you typed stays put)
+- **Live status dot** under the board: green = live rates (the latest
+  fetch succeeded), red = non-live rates (the latest fetch failed)
+- **Reset button** （重置初始）: restores the board to the initial state —
+  the default 7 currencies in default order with USD = 100
+- **Installable PWA** (`manifest.webmanifest` + `sw.js`): the site can
+  be installed to the home screen, but the service worker is
+  network-only — deliberately **no offline cache**, so an outage turns
+  the status dot red instead of silently serving stale content
 - No API key, no build step, no dependencies
 
 ## Data source

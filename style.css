@@ -82,3 +82,7 @@ h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 8px 0; 
 .pick-item .flag, .pick-item .flag-badge { width: 32px; height: 32px; font-size: 14px; }
 .pick-item .pname { color: #98989f; font-size: 12px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 96px; }
 
+/* Live / non-live status dot under the board */
+.statusbar { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 10px 0 0; color: #98989f; font-size: 13px; }
+.statusbar .dot { width: 9px; height: 9px; border-radius: 50%; background: #ff453a; flex: none; }
+.statusbar .dot.live { background: #30d158; box-shadow: 0 0 7px rgba(48, 209, 88, .75); }
