@@ -10,6 +10,8 @@ body {
 }
 .card { width: min(560px, 100%); }
 header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.logo { display: block; border-radius: 9px; flex: none; }
 h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 8px 0; }
 .sub { color: #98989f; font-size: 15px; margin: 0 0 20px; }
 
@@ -79,3 +81,20 @@ h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 8px 0; 
 .pick-item:hover, .pick-item:active { background: #2c2c2e; }
 .pick-item .flag, .pick-item .flag-badge { width: 32px; height: 32px; font-size: 14px; }
 .pick-item .pname { color: #98989f; font-size: 12px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 96px; }
+
+/* Trend chart sheet (opened by tapping a row's flag / name) */
+.chart-title { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.chart-flag { display: flex; flex: none; }
+.chart-flag .flag, .chart-flag .flag-badge { width: 38px; height: 38px; }
+.chart-name { color: #98989f; font-size: 13px; margin: 2px 0 0; }
+.chart-pair { color: #fff; font-size: 16px; font-weight: 600; margin: 14px 0 4px; font-variant-numeric: tabular-nums; }
+.chart-wrap { margin-top: 6px; }
+#chartCanvas { display: block; width: 100%; height: 190px; touch-action: none; }
+.chart-status { color: #98989f; font-size: 14px; text-align: center; min-height: 18px; margin: 8px 0 0; }
+.chart-status.error { color: #ff453a; }
+.chart-stats { display: flex; gap: 10px; margin-top: 10px; }
+.chart-stats .stat { flex: 1; background: #2c2c2e; border-radius: 12px; padding: 9px 10px; text-align: center; }
+.chart-stats .stat .k { color: #98989f; font-size: 11px; display: block; margin-bottom: 3px; }
+.chart-stats .stat .v { color: #fff; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.chart-stats .stat .v.up { color: #30d158; }
+.chart-stats .stat .v.down { color: #ff453a; }

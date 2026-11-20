@@ -51,9 +51,16 @@ const STR = {
   updated: { en: "Rates last updated: {t} · Source: ExchangeRate-API · Auto-refresh every 60s", "zh-CN": "汇率更新时间：{t} · 数据来源：ExchangeRate-API · 每 60 秒自动刷新", "zh-TW": "匯率更新時間：{t} · 資料來源：ExchangeRate-API · 每 60 秒自動重新整理", ja: "レート更新：{t} · 出典：ExchangeRate-API · 60秒ごとに自動更新", ko: "환율 업데이트: {t} · 출처: ExchangeRate-API · 60초마다 자동 새로고침", es: "Tasas actualizadas: {t} · Fuente: ExchangeRate-API · Actualización automática cada 60 s", fr: "Taux mis à jour : {t} · Source : ExchangeRate-API · Actualisation auto toutes les 60 s", de: "Kurse aktualisiert: {t} · Quelle: ExchangeRate-API · Auto-Aktualisierung alle 60 s", pt: "Taxas atualizadas: {t} · Fonte: ExchangeRate-API · Atualização automática a cada 60 s", it: "Tassi aggiornati: {t} · Fonte: ExchangeRate-API · Aggiornamento automatico ogni 60 s", ru: "Курсы обновлены: {t} · Источник: ExchangeRate-API · Автообновление каждые 60 с", ar: "آخر تحديث للأسعار: {t} · المصدر: ExchangeRate-API · تحديث تلقائي كل 60 ثانية" },
   max:     { en: "Maximum 7 currencies — remove one first.", "zh-CN": "最多显示 7 个货币，请先删除一个。", "zh-TW": "最多顯示 7 個貨幣，請先刪除一個。", ja: "最大7通貨までです。先に1つ削除してください。", ko: "최대 7개 통화까지 표시됩니다. 먼저 하나를 삭제하세요.", es: "Máximo 7 divisas: elimina una primero.", fr: "7 devises maximum — supprimez-en une d'abord.", de: "Maximal 7 Währungen — zuerst eine entfernen.", pt: "Máximo de 7 moedas — remova uma primeiro.", it: "Massimo 7 valute: rimuovine prima una.", ru: "Максимум 7 валют — сначала удалите одну.", ar: "بحد أقصى 7 عملات — احذف واحدة أولًا." },
   del:     { en: "Delete", "zh-CN": "删除", "zh-TW": "刪除", ja: "削除", ko: "삭제", es: "Eliminar", fr: "Supprimer", de: "Löschen", pt: "Excluir", it: "Elimina", ru: "Удалить", ar: "حذف" },
-  hint:    { en: "Tap a value to edit · Swipe left to delete · Long-press & drag to reorder", "zh-CN": "点数值编辑 · 左滑删除 · 长按拖动排序", "zh-TW": "點數值編輯 · 左滑刪除 · 長按拖動排序", ja: "数値をタップして編集 · 左スワイプで削除 · 長押しドラッグで並べ替え", ko: "값을 탭해 편집 · 왼쪽으로 밀어 삭제 · 길게 눌러 드래그하면 순서 변경", es: "Toca un valor para editar · Desliza a la izquierda para eliminar · Mantén pulsado y arrastra para reordenar", fr: "Touchez une valeur pour modifier · Glisser vers la gauche pour supprimer · Appui long puis glisser pour réordonner", de: "Wert antippen zum Bearbeiten · Zum Löschen nach links wischen · Lange drücken und ziehen zum Sortieren", pt: "Toque num valor para editar · Deslize para a esquerda para excluir · Pressione e arraste para reordenar", it: "Tocca un valore per modificare · Scorri a sinistra per eliminare · Premi a lungo e trascina per riordinare", ru: "Коснитесь значения, чтобы изменить · Свайп влево — удалить · Долгое нажатие и перетаскивание — изменить порядок", ar: "انقر على قيمة للتحرير · اسحب لليسار للحذف · اضغط مطولًا واسحب لإعادة الترتيب" },
+  hint:    { en: "Tap a value to edit · Tap icon/name for trend · Swipe left to delete · Long-press & drag to reorder", "zh-CN": "点数值编辑 · 点图标/名称看走势 · 左滑删除 · 长按拖动排序", "zh-TW": "點數值編輯 · 點圖標/名稱看走勢 · 左滑刪除 · 長按拖動排序", ja: "数値をタップして編集 · アイコン/名前をタップで推移 · 左スワイプで削除 · 長押しドラッグで並べ替え", ko: "값을 탭해 편집 · 아이콘/이름을 탭하면 추이 · 왼쪽으로 밀어 삭제 · 길게 눌러 드래그하면 순서 변경", es: "Toca un valor para editar · Toca el icono/nombre para la tendencia · Desliza a la izquierda para eliminar · Mantén pulsado y arrastra para reordenar", fr: "Touchez une valeur pour modifier · Touchez l'icône/le nom pour la tendance · Glisser vers la gauche pour supprimer · Appui long puis glisser pour réordonner", de: "Wert antippen zum Bearbeiten · Symbol/Name antippen für Trend · Zum Löschen nach links wischen · Lange drücken und ziehen zum Sortieren", pt: "Toque num valor para editar · Toque no ícone/nome para a tendência · Deslize para a esquerda para excluir · Pressione e arraste para reordenar", it: "Tocca un valore per modificare · Tocca icona/nome per l'andamento · Scorri a sinistra per eliminare · Premi a lungo e trascina per riordinare", ru: "Коснитесь значения, чтобы изменить · Коснитесь значка/названия для динамики · Свайп влево — удалить · Долгое нажатие и перетаскивание — изменить порядок", ar: "انقر على قيمة للتحرير · انقر على الأيقونة/الاسم للاتجاه · اسحب لليسار للحذف · اضغط مطولًا واسحب لإعادة الترتيب" },
   ref:     { en: "reference", "zh-CN": "基准", "zh-TW": "基準", ja: "基準", ko: "기준", es: "referencia", fr: "référence", de: "Referenz", pt: "referência", it: "riferimento", ru: "базовая", ar: "مرجع" },
   loadErr: { en: "Could not load rates: ", "zh-CN": "汇率加载失败：", "zh-TW": "匯率載入失敗：", ja: "レートを読み込めませんでした：", ko: "환율을 불러오지 못했습니다: ", es: "No se pudieron cargar las tasas: ", fr: "Impossible de charger les taux : ", de: "Kurse konnten nicht geladen werden: ", pt: "Não foi possível carregar as taxas: ", it: "Impossibile caricare i tassi: ", ru: "Не удалось загрузить курсы: ", ar: "تعذر تحميل الأسعار: " },
+  trend:   { en: "30-day trend", "zh-CN": "近30天走势", "zh-TW": "近30天走勢", ja: "過去30日の推移", ko: "최근 30일 추이", es: "Tendencia de 30 días", fr: "Tendance sur 30 jours", de: "30-Tage-Trend", pt: "Tendência de 30 dias", it: "Andamento 30 giorni", ru: "Динамика за 30 дней", ar: "اتجاه 30 يومًا" },
+  loading: { en: "Loading…", "zh-CN": "加载中…", "zh-TW": "載入中…", ja: "読み込み中…", ko: "로딩 중…", es: "Cargando…", fr: "Chargement…", de: "Lädt…", pt: "Carregando…", it: "Caricamento…", ru: "Загрузка…", ar: "جارٍ التحميل…" },
+  noHist:  { en: "No history available for this currency.", "zh-CN": "该货币暂无历史数据。", "zh-TW": "該貨幣暫無歷史資料。", ja: "この通貨の履歴データはありません。", ko: "이 통화의 과거 데이터가 없습니다.", es: "Sin historial para esta divisa.", fr: "Aucun historique pour cette devise.", de: "Keine Verlaufsdaten für diese Währung.", pt: "Sem histórico para esta moeda.", it: "Nessuno storico per questa valuta.", ru: "Нет истории для этой валюты.", ar: "لا توجد بيانات تاريخية لهذه العملة." },
+  chartErr:{ en: "Could not load the trend: ", "zh-CN": "走势加载失败：", "zh-TW": "走勢載入失敗：", ja: "推移を読み込めませんでした：", ko: "추이를 불러오지 못했습니다: ", es: "No se pudo cargar la tendencia: ", fr: "Impossible de charger la tendance : ", de: "Trend konnte nicht geladen werden: ", pt: "Não foi possível carregar a tendência: ", it: "Impossibile caricare l'andamento: ", ru: "Не удалось загрузить динамику: ", ar: "تعذر تحميل الاتجاه: " },
+  high:    { en: "30d high", "zh-CN": "30天最高", "zh-TW": "30天最高", ja: "30日最高", ko: "30일 최고", es: "Máx. 30d", fr: "Max 30 j", de: "30T-Hoch", pt: "Máx. 30d", it: "Max 30g", ru: "Макс. 30 дн.", ar: "الأعلى في 30 يومًا" },
+  low:     { en: "30d low", "zh-CN": "30天最低", "zh-TW": "30天最低", ja: "30日最安", ko: "30일 최저", es: "Mín. 30d", fr: "Min 30 j", de: "30T-Tief", pt: "Mín. 30d", it: "Min 30g", ru: "Мин. 30 дн.", ar: "الأدنى في 30 يومًا" },
+  change:  { en: "30d change", "zh-CN": "30天涨跌", "zh-TW": "30天漲跌", ja: "30日変化", ko: "30일 변동", es: "Cambio 30d", fr: "Variation 30 j", de: "30T-Änderung", pt: "Variação 30d", it: "Variazione 30g", ru: "Изм. за 30 дн.", ar: "تغير 30 يومًا" },
 };
 let lang = localStorage.getItem(STORE_LANG) || "en";
 const t = (key) => (STR[key] && (STR[key][lang] || STR[key].en)) || key;
@@ -389,7 +396,11 @@ function endGesture(e) {
     // plain tap (a moved gesture that matched no mode is not a tap)
     if (g.wasEditing) closeEditor();          // while editing, any tap elsewhere just exits editing
     else if (swipeOpen) { closeSwipe(); draw(); }
-    else if (editingCode !== g.code && g.startX >= valueLeftEdge(g.code) - 14) openEditor(g.code);
+    else if (editingCode !== g.code) {
+      // Right side (the value) edits; left side (flag / name) opens the trend chart.
+      if (g.startX >= valueLeftEdge(g.code) - 14) openEditor(g.code);
+      else openChart(g.code);
+    }
   }
   g = null;
 }
@@ -476,6 +487,7 @@ function applyLanguage() {
   $("pickerSearch").placeholder = t("search");
   document.title = t("title");
   draw();
+  if (chartCode && lastChart) renderChartText();
   if (!$("picker").classList.contains("hidden")) renderPicker($("pickerSearch").value);
   $("updated").textContent = updatedUtc ? t("updated").replace("{t}", updatedUtc) : "";
 }
@@ -557,6 +569,234 @@ $("refreshBtn").addEventListener("click", async () => {
   try { await loadRates(); } catch (e) { $("error").textContent = t("loadErr") + e.message; }
 });
 
+// ---------- trend chart (tap a row's flag / name) ----------
+// 30 days of history against USD. Sources (all free, no key, CORS-open):
+//  - fiat majors: Frankfurter (ECB reference rates, daily)
+//  - BTC / ETH: CoinGecko daily prices (plotted as USD per unit)
+//  - everything else (CNH, gold, silver, exotic fiat): the dated
+//    fawazahmed0 currency-api snapshots on jsDelivr, sampled every
+//    3 days — metals/crypto are plotted as USD per unit, fiat as
+//    units per USD, matching how a user reads each asset.
+const CG_ID = { BTC: "bitcoin", ETH: "ethereum" };
+const USD_PRICE_CODES = new Set(["XAU", "XAG", "XPT", "XPD", "BTC", "ETH"]);
+const histCache = {};
+let chartCode = null, lastChart = null, scrubIdx = null;
+const chartCanvas = $("chartCanvas");
+const chartCtx = chartCanvas.getContext ? chartCanvas.getContext("2d") : null;
+
+function fmtNum(v) {
+  if (!isFinite(v)) return "";
+  const ax = Math.abs(v);
+  const digits = ax >= 1000 ? 2 : ax >= 1 ? 4 : ax >= 0.01 ? 6 : 8;
+  return v.toLocaleString("en-US", { maximumFractionDigits: digits });
+}
+const isoDay = (d) => d.toISOString().slice(0, 10);
+const fmtDay = (d) => d.slice(5);   // YYYY-MM-DD -> MM-DD
+
+async function fetchFrankfurter(code) {
+  const end = new Date(), start = new Date(Date.now() - 31 * 864e5);
+  const url = `https://api.frankfurter.dev/v1/${isoDay(start)}..${isoDay(end)}?base=USD&symbols=${code}`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  const pts = [];
+  for (const day of Object.keys(data.rates || {}).sort()) {
+    const v = data.rates[day][code];
+    if (v > 0) pts.push({ d: day, v });
+  }
+  if (pts.length < 2) throw new Error("empty");
+  return { points: pts, pair: "perUSD" };
+}
+async function fetchCoinGecko(code) {
+  const url = `https://api.coingecko.com/api/v3/coins/${CG_ID[code]}/market_chart?vs_currency=usd&days=30&interval=daily`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  const pts = (data.prices || []).map(([ts, v]) => ({ d: isoDay(new Date(ts)), v })).filter((p) => p.v > 0);
+  if (pts.length < 2) throw new Error("empty");
+  return { points: pts, pair: "usdPrice" };
+}
+async function fetchDated(code) {
+  const offsets = [30, 27, 24, 21, 18, 15, 12, 9, 6, 3, 0];
+  const lc = code.toLowerCase();
+  const asUsdPrice = USD_PRICE_CODES.has(code);
+  const results = await Promise.allSettled(offsets.map(async (off) => {
+    const day = isoDay(new Date(Date.now() - off * 864e5));
+    const url = `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${day}/v1/currencies/usd.json`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const r = data.usd && data.usd[lc];
+    if (!(r > 0)) throw new Error("empty");
+    return { d: data.date || day, v: asUsdPrice ? 1 / r : r };
+  }));
+  const seen = new Set();
+  const pts = results.filter((r) => r.status === "fulfilled").map((r) => r.value)
+    .sort((a, b) => (a.d < b.d ? -1 : 1))
+    .filter((p) => !seen.has(p.d) && seen.add(p.d));
+  if (pts.length < 2) throw new Error("empty");
+  return { points: pts, pair: asUsdPrice ? "usdPrice" : "perUSD" };
+}
+async function loadHistory(code) {
+  if (histCache[code]) return histCache[code];
+  let out;
+  if (code === REF) {
+    const now = Date.now();
+    out = { points: [{ d: isoDay(new Date(now - 30 * 864e5)), v: 1 }, { d: isoDay(new Date(now)), v: 1 }], pair: "perUSD" };
+  } else if (CG_ID[code]) {
+    try { out = await fetchCoinGecko(code); } catch (e) { out = await fetchDated(code); }
+  } else if (USD_PRICE_CODES.has(code) || code === "CNH") {
+    out = await fetchDated(code);
+  } else {
+    try { out = await fetchFrankfurter(code); } catch (e) { out = await fetchDated(code); }
+  }
+  histCache[code] = out;
+  return out;
+}
+
+function openChart(code) {
+  closeEditor(); closeSwipe();
+  chartCode = code; lastChart = null; scrubIdx = null;
+  const flagBox = $("chartFlag");
+  flagBox.innerHTML = "";
+  flagBox.appendChild(flagNode(code));
+  $("chartSheet").classList.remove("hidden");
+  $("chartPair").textContent = "";
+  $("chartStats").innerHTML = "";
+  const st = $("chartStatus");
+  st.textContent = t("loading"); st.classList.remove("error");
+  renderChartText();
+  fitChart();
+  loadHistory(code).then((h) => {
+    if (chartCode !== code) return;               // sheet closed or switched meanwhile
+    lastChart = h;
+    st.textContent = "";
+    renderChartText();
+    fitChart();
+  }).catch((e) => {
+    if (chartCode !== code) return;
+    st.textContent = (e && e.message === "empty") ? t("noHist") : t("chartErr") + (e ? e.message : "");
+    st.classList.add("error");
+  });
+}
+function closeChart() {
+  chartCode = null; lastChart = null; scrubIdx = null;
+  $("chartSheet").classList.add("hidden");
+}
+function renderChartText() {
+  if (!chartCode) return;
+  $("chartCode").textContent = chartCode;
+  $("chartName").textContent = `${currencyName(chartCode)} · ${t("trend")}`;
+  if (!lastChart) return;
+  const pts = lastChart.points, first = pts[0], last = pts[pts.length - 1];
+  $("chartPair").textContent = lastChart.pair === "usdPrice"
+    ? `1 ${chartCode} = ${fmtNum(last.v)} USD`
+    : `1 USD = ${fmtNum(last.v)} ${chartCode}`;
+  const chg = first.v > 0 ? (last.v - first.v) / first.v * 100 : 0;
+  const hi = Math.max(...pts.map((p) => p.v)), lo = Math.min(...pts.map((p) => p.v));
+  const stat = (k, v, cls) => `<div class="stat"><span class="k">${k}</span><span class="v ${cls || ""}">${v}</span></div>`;
+  $("chartStats").innerHTML =
+    stat(t("change"), `${chg >= 0 ? "▲ +" : "▼ "}${chg.toFixed(2)}%`, chg >= 0 ? "up" : "down") +
+    stat(t("high"), fmtNum(hi)) +
+    stat(t("low"), fmtNum(lo));
+}
+
+function fitChart() {
+  if (!chartCtx) return;
+  const W = chartCanvas.clientWidth || chartCanvas.parentElement.clientWidth || 340;
+  const H = 190;
+  const dpr = window.devicePixelRatio || 1;
+  chartCanvas.width = Math.round(W * dpr);
+  chartCanvas.height = Math.round(H * dpr);
+  chartCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  drawChart(W, H);
+}
+function drawChart(W, H) {
+  if (!chartCtx) return;
+  const c = chartCtx;
+  c.clearRect(0, 0, W, H);
+  if (!lastChart || !chartCode) return;
+  const pts = lastChart.points;
+  const padL = 6, padR = 56, padT = 20, padB = 24;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const rawLo = Math.min(...pts.map((p) => p.v)), rawHi = Math.max(...pts.map((p) => p.v));
+  let lo = rawLo, hi = rawHi;
+  if (hi - lo < 1e-12) { hi = lo + Math.abs(lo) * 0.005 + 1e-9; lo = lo - Math.abs(lo) * 0.005 - 1e-9; }
+  const span = hi - lo; hi += span * 0.08; lo -= span * 0.08;
+  const X = (i) => padL + (pts.length === 1 ? iw / 2 : (i / (pts.length - 1)) * iw);
+  const Y = (v) => padT + ((hi - v) / (hi - lo)) * ih;
+  const up = pts[pts.length - 1].v >= pts[0].v;
+  const col = up ? "#30d158" : "#ff453a";
+  // gridlines + value labels (high / mid / low of the raw range)
+  c.font = "10px -apple-system, sans-serif"; c.textBaseline = "middle"; c.textAlign = "left";
+  for (const gv of [rawHi, (rawHi + rawLo) / 2, rawLo]) {
+    const y = Y(gv);
+    c.strokeStyle = "#2c2c2e"; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(padL, y); c.lineTo(padL + iw, y); c.stroke();
+    c.fillStyle = "#98989f"; c.fillText(fmtNum(gv), padL + iw + 6, y);
+  }
+  // line + gradient area
+  c.beginPath();
+  pts.forEach((p, i) => { const x = X(i), y = Y(p.v); i ? c.lineTo(x, y) : c.moveTo(x, y); });
+  c.strokeStyle = col; c.lineWidth = 2.2; c.lineJoin = "round"; c.lineCap = "round"; c.stroke();
+  c.lineTo(X(pts.length - 1), padT + ih); c.lineTo(X(0), padT + ih); c.closePath();
+  const grad = c.createLinearGradient(0, padT, 0, padT + ih);
+  grad.addColorStop(0, up ? "rgba(48,209,88,0.30)" : "rgba(255,69,58,0.30)");
+  grad.addColorStop(1, "rgba(0,0,0,0)");
+  c.fillStyle = grad; c.fill();
+  // last point dot
+  c.beginPath(); c.arc(X(pts.length - 1), Y(pts[pts.length - 1].v), 3.5, 0, Math.PI * 2);
+  c.fillStyle = "#fff"; c.fill();
+  // date labels
+  c.fillStyle = "#636366"; c.font = "10px -apple-system, sans-serif";
+  c.textAlign = "left"; c.fillText(fmtDay(pts[0].d), padL, H - 9);
+  c.textAlign = "right"; c.fillText(fmtDay(pts[pts.length - 1].d), padL + iw, H - 9);
+  c.textAlign = "left";
+  // scrub crosshair + tooltip
+  if (scrubIdx !== null && pts[scrubIdx]) {
+    const p = pts[scrubIdx], x = X(scrubIdx), y = Y(p.v);
+    c.strokeStyle = "rgba(255,255,255,0.35)"; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(x, padT); c.lineTo(x, padT + ih); c.stroke();
+    c.beginPath(); c.arc(x, y, 4.5, 0, Math.PI * 2);
+    c.fillStyle = col; c.fill(); c.lineWidth = 2; c.strokeStyle = "#fff"; c.stroke();
+    const label = `${fmtDay(p.d)} · ${fmtNum(p.v)}`;
+    c.font = "600 11px -apple-system, sans-serif";
+    const tw = c.measureText(label).width + 14;
+    const bx = Math.min(Math.max(x - tw / 2, 2), W - tw - 2);
+    c.beginPath();
+    if (c.roundRect) c.roundRect(bx, 0, tw, 18, 6); else c.rect(bx, 0, tw, 18);
+    c.fillStyle = "#3a3a3c"; c.fill();
+    c.fillStyle = "#fff"; c.textAlign = "center"; c.fillText(label, bx + tw / 2, 9.5);
+    c.textAlign = "left";
+  }
+}
+function chartScrub(e) {
+  if (!lastChart) return;
+  const rect = chartCanvas.getBoundingClientRect();
+  const iw = rect.width - 6 - 56;
+  const pts = lastChart.points;
+  const i = Math.round(((e.clientX - rect.left - 6) / iw) * (pts.length - 1));
+  scrubIdx = Math.max(0, Math.min(pts.length - 1, i));
+  drawChart(rect.width, 190);
+}
+chartCanvas.addEventListener("pointerdown", (e) => {
+  try { chartCanvas.setPointerCapture && chartCanvas.setPointerCapture(e.pointerId); } catch (err) {}
+  chartScrub(e);
+});
+chartCanvas.addEventListener("pointermove", chartScrub);
+function chartScrubEnd() {
+  if (scrubIdx === null) return;
+  scrubIdx = null;
+  const rect = chartCanvas.getBoundingClientRect();
+  drawChart(rect.width || 340, 190);
+}
+chartCanvas.addEventListener("pointerup", chartScrubEnd);
+chartCanvas.addEventListener("pointercancel", chartScrubEnd);
+chartCanvas.addEventListener("pointerleave", chartScrubEnd);
+$("chartClose").addEventListener("click", closeChart);
+$("chartSheet").addEventListener("click", (e) => { if (e.target === $("chartSheet")) closeChart(); });
+window.addEventListener("resize", () => { if (chartCode) fitChart(); });
+
 // Debug/test handle (read-only view of the board state).
-window.__rtcc = { get watchlist() { return [...watchlist]; }, get values() { return { ...values }; }, get anchor() { return { ...anchor }; }, get rates() { return { ...rates }; } };
+window.__rtcc = { get watchlist() { return [...watchlist]; }, get values() { return { ...values }; }, get anchor() { return { ...anchor }; }, get rates() { return { ...rates }; }, get chartCode() { return chartCode; }, get lastChart() { return lastChart; }, openChart, closeChart, loadHistory };
 init();

@@ -19,6 +19,15 @@ CLI. 160+ world currencies, in the browser or from the command line.
   fully own the surface — the page never scrolls along with a drag
   (`touch-action: none` + scroll lock while dragging), and the red Delete
   area is drawn only during a swipe, never during a drag.
+- **30-day trend chart**: tap a row's flag or currency name to open a
+  bottom sheet with that currency's last-30-days chart against USD
+  (drag on the chart to scrub values), plus 30-day change / high / low.
+  Fiat history comes from Frankfurter (ECB), BTC/ETH from CoinGecko,
+  and everything else (CNH, gold, silver, exotics) from dated
+  currency-api snapshots — all free, no key.
+- **Logo**: a self-designed mark (`logo.svg` — circular exchange arrows
+  around a gold coin on a blue→purple gradient) used as the header logo,
+  favicon and touch icon (`apple-touch-icon.png`, `icon-192/512.png`).
 - **Editable currency list** (max **7** at once; defaults USD, CNH, TRY,
   HKD, JPY, GBP, EUR): add currencies from a searchable flag picker
   (tap ＋ Add currency), **tap a row to edit its amount** (a real input
@@ -72,6 +81,7 @@ python3 converter.py 100 USD CNY
 | File | Purpose |
 |---|---|
 | `index.html` / `style.css` / `app.js` | Browser converter |
+| `logo.svg` / `favicon-64.png` / `apple-touch-icon.png` / `icon-*.png` | Site logo and icons |
 | `converter.py` | Command-line converter (Python 3, stdlib only) |
 
 ## License

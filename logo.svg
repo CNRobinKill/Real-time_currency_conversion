@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0a84ff"/>
+      <stop offset="0.55" stop-color="#5e5ce6"/>
+      <stop offset="1" stop-color="#bf5af2"/>
+    </linearGradient>
+    <linearGradient id="coin" x1="0" y1="0" x2="0" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffe259"/>
+      <stop offset="1" stop-color="#ffa751"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="url(#bg)"/>
+  <!-- circular exchange arrows -->
+  <path d="M 35 58 A 29 29 0 0 1 93 58" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round"/>
+  <path d="M 93 78 L 79 57 L 107 57 Z" fill="#ffffff"/>
+  <path d="M 93 70 A 29 29 0 0 1 35 70" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round"/>
+  <path d="M 35 50 L 21 71 L 49 71 Z" fill="#ffffff"/>
+  <!-- gold coin -->
+  <circle cx="64" cy="64" r="14.5" fill="url(#coin)"/>
+  <circle cx="64" cy="64" r="14.5" fill="none" stroke="#e08900" stroke-width="1.6" opacity="0.55"/>
+  <text x="64" y="65.5" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="19" font-weight="700" fill="#7a4d00" text-anchor="middle" dominant-baseline="central">$</text>
+</svg>
