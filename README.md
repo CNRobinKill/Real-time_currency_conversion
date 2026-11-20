@@ -19,12 +19,20 @@ CLI. 160+ world currencies, in the browser or from the command line.
   fully own the surface — the page never scrolls along with a drag
   (`touch-action: none` + scroll lock while dragging), and the red Delete
   area is drawn only during a swipe, never during a drag.
-- **30-day trend chart**: tap a row's flag or currency name to open a
-  bottom sheet with that currency's last-30-days chart against USD
-  (drag on the chart to scrub values), plus 30-day change / high / low.
+- **30-day trend chart**: tap a row's flag or currency name and a chart
+  expands inline directly under that row (only one row stays expanded;
+  tapping another row moves it). The chart shows the pair between the
+  **benchmark currency (the first row)** and the tapped currency over
+  the last 30 days — drag on it to scrub values — with 30-day change /
+  high / low, and a ⇄ pill in its header flips the pair (base ⇄ quote).
   Fiat history comes from Frankfurter (ECB), BTC/ETH from CoinGecko,
   and everything else (CNH, gold, silver, exotics) from dated
   currency-api snapshots — all free, no key.
+- **Benchmark currency**: the first row is the benchmark — every other
+  row's rate hint reads `1 <benchmark> = …`. The benchmark row is
+  pinned (it cannot be dragged away), but long-press-dragging any other
+  row onto the top displaces it and makes the dropped row the new
+  benchmark.
 - **Logo**: a self-designed mark (`logo.svg` — circular exchange arrows
   around a gold coin on a blue→purple gradient) used as the header logo,
   favicon and touch icon (`apple-touch-icon.png`, `icon-192/512.png`).
